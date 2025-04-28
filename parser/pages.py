@@ -1,15 +1,16 @@
 from flask import Blueprint, redirect, render_template, url_for
 from app import db, bcrypt
-from transform.data_validation import filetype_validation
-from transform.transform_lova import lova_conversion
-from transform.transform_rvtools import rvtools_conversion
-import os
-import pandas as pd
+from flask import current_app as app
 from werkzeug.utils import secure_filename
 from flask_login import login_user, login_required, logout_user
 from forms import RegisterForm, LoginForm, UploadFileForm, CreateProjectForm, CreateWorkloadForm
 from models import User, Workload, Project
-from flask import current_app as app
+
+import os
+import pandas as pd
+from transform.data_validation import filetype_validation
+from transform.transform_lova import lova_conversion
+from transform.transform_rvtools import rvtools_conversion
 
 
 bp = Blueprint("pages", __name__)
@@ -74,25 +75,6 @@ def upload():
         return redirect(url_for('pages.success', input_path=input_path, file_type=ft, file_name=filename))
     return render_template('pages/upload.html',form=form)
 
-    # if request.method == 'POST':
-    #     # check if the post request has the file part
-    #     if 'file' not in request.files:
-    #         flash('No file part')
-    #         return redirect(request.url)
-    #     file = request.files['file']
-
-    #     # If the user does not select a file, the browser submits an empty file without a filename.
-    #     if file.filename == '':
-    #         flash('No selected file')
-    #         return redirect(request.url)
-    #     if file and allowed_file(file.filename):
-    #         input_path=app.config['UPLOAD_FOLDER']
-    #         filename = secure_filename(file.filename)
-    #         file.save(os.path.join(input_path, filename))
-
-    #         ft = filetype_validation(input_path, filename)
-    #         return redirect(url_for('pages.success', input_path=input_path, file_type=ft, file_name=filename))
-    # return render_template('pages/upload.html')
 
 @bp.route('/success/<input_path>/<file_type>/<file_name>')
 @login_required
@@ -108,7 +90,7 @@ def success(input_path, file_type, file_name):
             return render_template('pages/error.html', fn=file_name, ft=file_type)
 
     if vm_data_df is not None:
-        # access the result in the tempalte, for example {{ vms }}
+        # access the result in the template, for example {{ vms }}
         vmdf_html = vm_data_df.to_html(classes=["table", "table-sm","table-striped", "text-center","table-responsive","table-hover", "table-dark"])
         return render_template('pages/success.html', fn=file_name, ft=file_type, tables=[vmdf_html], titles=[''])
     else:
