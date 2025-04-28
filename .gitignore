@@ -1,1 +1,5 @@
+.dockerignore
 venv/
+**/.DS_Store
+parser/input/
+**/__pycache__
