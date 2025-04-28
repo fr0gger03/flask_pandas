@@ -12,7 +12,6 @@ def create_app():
     app = Flask(__name__)
     app.config ['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
     app.config ['UPLOAD_FOLDER'] = Config.UPLOAD_FOLDER
-    app.config ['ALLOWED_EXTENSIONS'] = Config.ALLOWED_EXTENSIONS
     app.config ['SECRET_KEY'] = Config.SECRET_KEY
     db.init_app(app)
 
