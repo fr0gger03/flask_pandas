@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Error...{% endblock title %}</h2>
+{% endblock header %}
+
+{% block content %}
+<p>Something went wrong.</p> 
+<p>File Name {{fn}} is {{ft}}.</p> 
+<p>File is neither a LiveOptics file, nor an RV Tools file, else is not correctly formed / complete</p> 
+
+{% endblock content %}

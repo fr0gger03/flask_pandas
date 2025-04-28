@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Upload Excel File{% endblock title %}</h2>
+{% endblock header %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" action="">
+  {{ form.hidden_tag() }}
+  {{ form.file}}
+  {{ form.submit }}
+</form>
+{% endblock content %}

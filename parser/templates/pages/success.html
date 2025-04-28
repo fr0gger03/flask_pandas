@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>File uploaded successfully</h1>
+    <h2>{% block title %}Nice job...{% endblock title %}</h2>
+{% endblock header %}
+
+{% block content %}
+<h4>File Name: {{fn}}</h4> 
+<h4>File type: {{ft}}</h4> 
+<br>
+<br>
+<div align="center"> 
+   <table> 
+       <h1> 
+       <!--Displaying the converted table-->
+            {% for table in tables %} 
+           <h2>{{titles[loop.index]}}</h2>                             
+           {{ table|safe }} 
+           {% endfor %}      
+       </h1>  
+   </table> 
+</div> 
+
+{% endblock content %}

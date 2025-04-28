@@ -1,0 +1,27 @@
+/*
+ * Custom CSS
+ */
+
+  :root {
+    --bs-body-bg: #007cba;
+    /* --bs-body-bg: #00ba0f; */
+    --bs-link-color: #ffffffaa;
+  }
+  body {
+    font: 1rem/1.5 var(--bs-font-sans-serif);
+    color: white;
+    margin: 50px;
+    padding: 10px;
+    background-color: var(--bs-body-bg);
+  }
+  a {
+    color: var(--bs-link-color);
+  }
+  th, td {
+    text-align: center;
+  }
+  tr {
+    text-align: center;
+  }
+
+

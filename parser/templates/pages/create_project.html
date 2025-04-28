@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Create Project{% endblock title %}</h2>
+{% endblock header %}
+
+{% block content %}
+
+<form method="POST" action="{{ url_for('pages.create_project') }}">
+    {{ form.hidden_tag() }}
+    {{ form.projectname.label }} {{ form.projectname() }}
+    {{ form.submit() }}
+    {% for error in form.projectname.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+</form>
+
+{% endblock content %}
