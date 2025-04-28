@@ -1,0 +1,54 @@
+
+services:
+  frontend:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+      target: test
+      tags:
+        - "thomastwyman557/parser"
+    ports:
+      - 80:5000
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./parser
+          target: /app
+        - action: sync
+          path: ./parser/static
+          target: /app/static
+        - action: sync
+          path: ./parser/templates
+          target: /app/templates
+        - action: rebuild
+          path: ./requirements.txt
+
+  db:
+    image: postgres:17.4
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./parser/sql:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - 8081:8080
+
+volumes:
+  db-data:
+
