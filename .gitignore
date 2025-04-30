@@ -3,3 +3,4 @@ venv/
 **/.DS_Store
 parser/input/
 **/__pycache__
+__pycache__/
