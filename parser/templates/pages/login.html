@@ -10,6 +10,10 @@
     {{ form.username }}
     {{ form.password }}
     {{ form.submit }}
+    <br>
+    {% for error in form.username.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
 </form>
 <br>
 <br>

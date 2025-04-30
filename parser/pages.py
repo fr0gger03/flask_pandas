@@ -6,7 +6,7 @@ from flask_login import login_user, login_required, logout_user
 from forms import RegisterForm, LoginForm, UploadFileForm, CreateProjectForm, CreateWorkloadForm
 from models import User, Workload, Project
 
-import os
+import os, sys
 import pandas as pd
 from transform.data_validation import filetype_validation
 from transform.transform_lova import lova_conversion
@@ -81,21 +81,33 @@ def upload():
 def success(input_path, file_type, file_name):
     describe_params={"file_name":file_name, "input_path":input_path}
 
-    match file_type:
-        case 'live-optics':
-            vm_data_df = pd.DataFrame(lova_conversion(**describe_params))
-        case 'rv-tools':
-            vm_data_df = pd.DataFrame(rvtools_conversion(**describe_params))
-        case 'invalid':
-            return render_template('pages/error.html', fn=file_name, ft=file_type)
+    try:
+        match file_type:
+            case 'live-optics':
+                vm_data_df = pd.DataFrame(lova_conversion(**describe_params))
+            case 'rv-tools':
+                vm_data_df = pd.DataFrame(rvtools_conversion(**describe_params))
+            case 'invalid':
+                return render_template('pages/error.html', fn=file_name, ft=file_type)
 
-    if vm_data_df is not None:
-        # access the result in the template, for example {{ vms }}
-        vmdf_html = vm_data_df.to_html(classes=["table", "table-sm","table-striped", "text-center","table-responsive","table-hover", "table-dark"])
-        return render_template('pages/success.html', fn=file_name, ft=file_type, tables=[vmdf_html], titles=[''])
-    else:
-        print()
-        print("Something went wrong.  Please check your syntax and try again.")
+        try:
+            os.remove(os.path.join(input_path, file_name))
+            print('File deleted...', file=sys.stderr)  # Print to stderr
+        except:
+            print('File deletion failed...', file=sys.stderr)  # Print to stderr
+
+        if vm_data_df is not None:
+            # access the result in the template, for example {{ vms }}
+            vmdf_html = vm_data_df.to_html(classes=["table", "table-sm","table-striped", "text-center","table-responsive","table-hover", "table-dark"])
+            return render_template('pages/success.html', fn=file_name, ft=file_type, tables=[vmdf_html], titles=[''])
+        else:
+            print()
+            print("Something went wrong.  Please check your syntax and try again.")
+
+    except FileNotFoundError:
+        print("The file was not found.")
+        return redirect(url_for('pages.upload'))
+
 
 
 @bp.route("/about")
