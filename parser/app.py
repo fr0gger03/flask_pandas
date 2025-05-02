@@ -30,7 +30,7 @@ def create_app():
 
     bcrypt.init_app(app)
 
-    from parser.pages import bp
+    from routes import bp
     app.register_blueprint(bp)
 
     # log all the routes to console
