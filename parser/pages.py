@@ -37,10 +37,10 @@ def login():
             if bcrypt.check_password_hash(user.password, form.password.data):
                 if login_user(user):
                     return redirect(url_for('pages.dashboard'))
-    else:
-        for fieldName, errorMessages in form.errors.items():
-            for err in errorMessages:
-                print(fieldName, err)
+    # else:
+    #     for fieldName, errorMessages in form.errors.items():
+    #         for err in errorMessages:
+    #             print(fieldName, err)
     return render_template('pages/login.html', form=form)
 
 @bp.route('/logout', methods=['GET', 'POST'])
