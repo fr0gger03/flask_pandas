@@ -35,17 +35,32 @@ class CreateProjectForm(FlaskForm):
     project_name = StringField(validators=[
                                 InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Project Name"})
 
-    project_description = StringField(validators=[
-                                      InputRequired(), Length(min=4, max=100)], render_kw={"placeholder": "Project Description"})
-
     submit = SubmitField('Create Project')
 
 class CreateWorkloadForm(FlaskForm):
-    workload_name = StringField(validators=[
-                                 InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Workload Name"})
 
-    workload_description = StringField(validators=[
-                                       InputRequired(), Length(min=4, max=100)], render_kw={"placeholder": "Workload Description"})
+    # mobid = db.Column(db.String(20))
+    # cluster = db.Column(db.String(40))
+    # virtualdatacenter = db.Column(db.String(40))
+    # os = db.Column(db.String(40))
+    # os_name = db.Column(db.String(40))
+    # vmstate = db.Column(db.String(20))
+    # vcpu = db.Column(db.Integer)
+    # vmname = db.Column(db.String(40))
+    # vram = db.Column(db.Integer)
+    # ip_addresses = db.Column(db.String(60))
+    # vinfo_provisioned = db.Column(db.Numeric(12,6))
+    # vinfo_used = db.Column(db.Numeric(12,6))
+    # vmdktotal = db.Column(db.Numeric(12,6))
+    # vmdkused = db.Column(db.Numeric(12,6))
+    # readiops = db.Column(db.Numeric(12,6))
+    # writeiops = db.Column(db.Numeric(12,6))
+    # peakreadiops = db.Column(db.Numeric(12,6))
+    # peakwriteiops = db.Column(db.Numeric(12,6))
+    # readthroughput = db.Column(db.Numeric(12,6))
+    # writethroughput = db.Column(db.Numeric(12,6))
+    # peakreadthroughput = db.Column(db.Numeric(12,6))
+    # peakwritethroughput = db.Column(db.Numeric(12,6))
 
     submit = SubmitField('Create Workload')
 

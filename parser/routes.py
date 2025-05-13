@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, redirect, render_template, url_for, session
 from app import db, bcrypt
 from flask import current_app as app
 from werkzeug.utils import secure_filename
@@ -36,11 +36,10 @@ def login():
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
                 if login_user(user):
+                    session['loggedin'] = True
+                    session['id'] = user.id
+                    session['username'] = user.username                    
                     return redirect(url_for('pages.dashboard'))
-    # else:
-    #     for fieldName, errorMessages in form.errors.items():
-    #         for err in errorMessages:
-    #             print(fieldName, err)
     return render_template('pages/login.html', form=form)
 
 @bp.route('/logout', methods=['GET', 'POST'])
@@ -52,7 +51,6 @@ def logout():
 @bp.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         new_user = User(username=form.username.data, password=hashed_password)
@@ -60,6 +58,19 @@ def register():
         db.session.commit()
         return redirect(url_for('pages.login'))
     return render_template('pages/register.html', form=form)
+
+
+@bp.route('/profile')
+@login_required
+def profile():
+    # Check if the user is logged in
+    if 'loggedin' in session:
+        # We need all the account info for the user so we can display it on the profile page
+        user = User.query.filter_by(username=session['username']).first()
+        # Show the profile page with account info
+        return render_template('pages/profile.html', user=user)
+    # User is not logged in redirect to login page
+    return redirect(url_for('pages.login'))
 
 
 @bp.route('/upload', methods=['GET', 'POST'])
