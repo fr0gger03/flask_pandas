@@ -2,8 +2,10 @@
 services:
   frontend:
     build:
-      context: ./parser
-      dockerfile: Dockerfile
+      # context: ./parser
+      # dockerfile: Dockerfile
+      context: .
+      dockerfile: ./parser/Dockerfile
       target: test
       tags:
         - "thomastwyman557/parser"
@@ -23,9 +25,13 @@ services:
         - action: sync
           path: ./parser/templates
           target: /app/templates
+        # - action: rebuild
+        #   path: ./requirements.txt
+        # Watch for changes to project configuration
         - action: rebuild
-          path: ./requirements.txt
-
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
   db:
     image: postgres:17.4
     ports:

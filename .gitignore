@@ -4,3 +4,7 @@ venv/
 parser/input/
 **/__pycache__
 __pycache__/
+# uv
+.venv/
+uv.lock
+.python-version
