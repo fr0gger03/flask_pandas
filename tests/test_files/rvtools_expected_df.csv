@@ -1,0 +1,6 @@
+﻿vmId,cluster,virtualDatacenter,ip_addresses,os,os_name,vmState,vCpu,vmName,vRam,vinfo_provisioned,vinfo_used,vmdkTotal,vmdkUsed
+vm-01,Cluster 02,BRB,no ip,Microsoft Windows Server 2008 (64-bit),NaN,poweredOff,2,vm1,4,104.551758,100,100,100
+vm-02,Cluster 02,BRB,no ip,Microsoft Windows Server 2016 or later (64-bit),NaN,poweredOff,2,vm2,4,44.551758,40,40,40
+vm-03,Cluster 01,BRB,157.139.250.77,Red Hat Enterprise Linux 8 (64-bit),vm3,poweredOn,8,vm3,32,132.084961,132.084961,100,10.804688
+vm-04,Cluster 01,BRB,10.63.215.132,FreeBSD (64-bit),vm4,poweredOn,2,vm4,8,28.087891,28.087891,20,5.905273
+vm-05,Cluster 01,BRB,10.63.215.133,FreeBSD (64-bit),vm5,poweredOn,2,vm5,8,48.088867,33.461914,20,8.484375

@@ -1,0 +1,9 @@
+# Testing requirements for flask_pandas project
+# Add these to your main requirements.txt or create a separate test-requirements.txt
+
+pytest>=7.0.0
+pytest-flask>=1.2.0
+testcontainers[postgres]>=3.7.0
+pandas>=1.5.0
+openpyxl>=3.0.0  # For Excel file reading
+flask-testing>=0.8.1

@@ -1,0 +1,6 @@
+﻿cluster,virtualDatacenter,os,os_name,vmState,vCpu,vmName,vmId,vmdkTotal,vmdkUsed,vRam,ip_addresses,readIOPS,writeIOPS,peakReadIOPS,peakWriteIOPS,readThroughput,writeThroughput,peakReadThroughput,peakWriteThroughput
+Cluster 02,Company Datacenter 01,Microsoft Windows Server 2008 (64-bit),vm1,poweredOff,1,vm1,vm-01,0,0,1,no ip,35,88,3746,5268,3,3,254,194
+Cluster 02,Company Datacenter 01,Microsoft Windows Server 2016 or later (64-bit),vm2,poweredOff,2,vm2,vm-02,299.000977,299.000977,2,no ip,0,103,64,1034,0,2,2,17
+Cluster 01,Company Datacenter 01,Red Hat Enterprise Linux 7 (64-bit),vm3,poweredOn,4,vm3,vm-03,40,40,4,no ip,3,27,1108,158,0,0,47,9
+Cluster 01,Company Datacenter 01,Oracle Solaris 10 (64-bit),vm4,poweredOn,8,vm4,vm-04,45,45,8.001953,"10.32.60.40, fe80::250:56ff:febb:ea43, 10.69.2.72, fe80::65b:2590:31fe:db91",15,3,7622,1167,0,0,475,72
+Cluster 01,Company Datacenter 01,Oracle Solaris 10 (64-bit),vm5,poweredOn,16,vm5,vm-05,60,60,16.003906,"10.69.2.79, fe80::250:56ff:fe8a:740b, 192.168.100.9, fe80::250:56ff:fe8a:e98",2,14,6849,329,0,0,426,8
