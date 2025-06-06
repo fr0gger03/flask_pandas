@@ -1,4 +1,4 @@
-FROM python:3.13.23-alpine AS base
+FROM python:3.13-alpine AS base
 
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -29,23 +29,12 @@ RUN adduser \
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
-# RUN --mount=type=cache,target=/root/.cache/pip \
-#     --mount=type=bind,source=requirements.txt,target=requirements.txt \
-#     python -m pip install -r requirements.txt
-
 COPY parser/ .
-# RUN chown -R appuser:appuser .  && chmod -R 1777 .
 RUN chown -R appuser:appuser /app && \
     chown -R appuser:appuser /tmp/uv-cache 2>/dev/null || true
 
 USER appuser
 EXPOSE 5000
-
-# FROM base AS test
-# CMD [ "python", "-m" , "flask", "run", "--debug", "--host=0.0.0.0"]
-
-# FROM base AS prod
-# CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0"]
 
 FROM base AS test
 # Include dev dependencies for test
