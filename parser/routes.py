@@ -19,14 +19,18 @@ bp = Blueprint("pages", __name__)
 def home():
     return render_template("pages/home.html")
 
+
 @bp.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
     return render_template("pages/dashboard.html")
 
+
 @bp.route("/create_project", methods=['GET', 'POST'])
+@login_required
 def create_project():
     return render_template("pages/create_project.html")
+
 
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
@@ -42,11 +46,12 @@ def login():
                     return redirect(url_for('pages.dashboard'))
     return render_template('pages/login.html', form=form)
 
+
 @bp.route('/logout', methods=['GET', 'POST'])
-@login_required
 def logout():
     logout_user()
     return redirect(url_for('pages.login'))
+
 
 @bp.route("/register", methods=['GET', 'POST'])
 def register():
@@ -87,9 +92,8 @@ def upload():
     return render_template('pages/upload.html',form=form)
 
 
-# @bp.route('/success/<input_path>/<file_type>/<file_name>')
-
 @bp.route('/success')
+# @bp.route('/success/<input_path>/<file_type>/<file_name>')
 @login_required
 # def success(input_path, file_type, file_name):
 def success():
@@ -125,7 +129,6 @@ def success():
     except FileNotFoundError:
         print("The file was not found.")
         return redirect(url_for('pages.upload'))
-
 
 
 @bp.route("/about")

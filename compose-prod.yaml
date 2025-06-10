@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: test
+      target: production
       tags:
         - "thomastwyman557/parser"
     ports:
@@ -17,21 +17,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./parser
-          target: /app
-        - action: sync
-          path: ./parser/static
-          target: /app/static
-        - action: sync
-          path: ./parser/templates
-          target: /app/templates
-        - action: rebuild
-          path: ./pyproject.toml
-        - action: rebuild
-          path: ./uv.lock
   db:
     image: postgres:17.4
     ports:

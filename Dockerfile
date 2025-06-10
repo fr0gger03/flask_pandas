@@ -53,6 +53,6 @@ FROM base AS test
 # USER appuser
 CMD ["uv", "run", "flask", "run", "--debug", "--host=0.0.0.0"]
 
-FROM base AS prod
+FROM base AS production
 USER appuser
 CMD ["uv", "run", "flask", "run", "--host=0.0.0.0"]

@@ -8,10 +8,10 @@ load_dotenv()
 
 # debug to assess env variables
 # these should be set in a .env file if running locally, or in a compose file if run in a container
-print("Environment variables loaded:")
-print(f"SECRET_KEY: {os.getenv('SECRET_KEY')}")
-print(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
-print(f"UPLOAD_FOLDER: {os.getenv('UPLOAD_FOLDER')}")
+# print("Environment variables loaded:")
+# print(f"SECRET_KEY: {os.getenv('SECRET_KEY')}")
+# print(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
+# print(f"UPLOAD_FOLDER: {os.getenv('UPLOAD_FOLDER')}")
 
 class Config(object):
     DEBUG = False
