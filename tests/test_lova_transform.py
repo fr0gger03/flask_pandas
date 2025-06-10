@@ -4,8 +4,7 @@ Unit tests for LiveOptics (LOVA) data transformation functions.
 import pandas as pd
 import pytest
 from pandas import testing as pdtest
-from transform.transform_lova import lova_conversion
-
+from parser.transform.transform_lova import lova_conversion
 
 def test_lova_transformation():
     """Test LiveOptics data transformation"""

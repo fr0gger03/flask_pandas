@@ -4,7 +4,7 @@ Unit tests for RVTools data transformation functions.
 import pandas as pd
 import pytest
 from pandas import testing as pdtest
-from transform.transform_rvtools import rvtools_conversion
+from parser.transform.transform_rvtools import rvtools_conversion
 
 
 def test_rvtools_transformation():

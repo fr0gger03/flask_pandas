@@ -3,16 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager
-from config import Config
+from parser.config import Config
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
-    app.config ['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
-    app.config ['UPLOAD_FOLDER'] = Config.UPLOAD_FOLDER
-    app.config ['SECRET_KEY'] = Config.SECRET_KEY
+    
+    # Load default configuration
+    app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
+    app.config['UPLOAD_FOLDER'] = Config.UPLOAD_FOLDER
+    app.config['SECRET_KEY'] = Config.SECRET_KEY
+    # Override with provided config if available
+    if config:
+        app.config.update(config)
     db.init_app(app)
 
     login_manager = LoginManager()
@@ -23,14 +28,14 @@ def create_app():
     login_manager.init_app(app)
     csrf = CSRFProtect(app)  # Enable CSRF Protection
 
-    from models import User, Workload, Project
+    from parser.models import User, Workload, Project
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
 
     bcrypt.init_app(app)
 
-    from routes import bp
+    from parser.routes import bp
     app.register_blueprint(bp)
 
     # log all the routes to console

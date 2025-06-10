@@ -3,7 +3,7 @@ Unit tests for data validation functions.
 """
 import pandas as pd
 import pytest
-from transform.data_validation import filetype_validation
+from parser.transform.data_validation import filetype_validation
 
 
 def test_filetype_validation_liveoptics():
@@ -48,7 +48,7 @@ def test_filetype_validation_nonexistent_file():
 def test_filetype_validation_function_interface():
     """Test that filetype_validation function has correct interface"""
     # Test that the function exists and can be imported
-    from transform.data_validation import filetype_validation
+    from parser.transform.data_validation import filetype_validation
     
     # Test that function accepts the expected parameters
     # This will raise FileNotFoundError but confirms the interface works

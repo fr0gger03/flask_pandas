@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import InputRequired, Length, ValidationError
 
-from models import User
+from parser.models import User
 
 class RegisterForm(FlaskForm):
     username = StringField(validators=[

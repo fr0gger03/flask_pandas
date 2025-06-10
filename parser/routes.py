@@ -1,16 +1,16 @@
-from flask import Blueprint, redirect, render_template, url_for, session
-from app import db, bcrypt
+from flask import Blueprint, request, redirect, render_template, url_for, session
 from flask import current_app as app
 from werkzeug.utils import secure_filename
 from flask_login import login_user, login_required, logout_user
-from forms import RegisterForm, LoginForm, UploadFileForm, CreateProjectForm, CreateWorkloadForm
-from models import User, Workload, Project
+from parser.app import db, bcrypt
+from parser.forms import RegisterForm, LoginForm, UploadFileForm, CreateProjectForm, CreateWorkloadForm
+from parser.models import User, Workload, Project
 
 import os, sys
 import pandas as pd
-from transform.data_validation import filetype_validation
-from transform.transform_lova import lova_conversion
-from transform.transform_rvtools import rvtools_conversion
+from parser.transform.data_validation import filetype_validation
+from parser.transform.transform_lova import lova_conversion
+from parser.transform.transform_rvtools import rvtools_conversion
 
 
 bp = Blueprint("pages", __name__)
@@ -87,9 +87,16 @@ def upload():
     return render_template('pages/upload.html',form=form)
 
 
-@bp.route('/success/<input_path>/<file_type>/<file_name>')
+# @bp.route('/success/<input_path>/<file_type>/<file_name>')
+
+@bp.route('/success')
 @login_required
-def success(input_path, file_type, file_name):
+# def success(input_path, file_type, file_name):
+def success():
+    input_path = request.args.get('input_path')
+    file_type = request.args.get('file_type') 
+    file_name = request.args.get('file_name')
+    # ... rest of your function logic
     describe_params={"file_name":file_name, "input_path":input_path}
 
     try:

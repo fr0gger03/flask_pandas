@@ -4,8 +4,8 @@ Integration tests for login, registration, and authenticated routes.
 import pytest
 import os
 from flask import url_for
-from app import bcrypt, db
-from models import User
+from parser.app import bcrypt, db
+from parser.models import User
 
 
 def test_user_registration(client, db_session):

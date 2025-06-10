@@ -5,12 +5,17 @@ services:
       # context: ./parser
       # dockerfile: Dockerfile
       context: .
-      dockerfile: ./parser/Dockerfile
+      dockerfile: Dockerfile
       target: test
       tags:
         - "thomastwyman557/parser"
     ports:
-      - 80:5000
+      - 80:5001
+    environment:
+      - FLASK_RUN_PORT=5001
+      - SECRET_KEY=your-secret-key
+      - DATABASE_URL=postgresql://inventorydbuser:password@db:5432/inventorydb
+      - UPLOAD_FOLDER=parser/input/
     depends_on:
       db:
         condition: service_healthy

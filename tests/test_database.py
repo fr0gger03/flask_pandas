@@ -4,8 +4,8 @@ Database integration tests using testcontainers for PostgreSQL.
 import pytest
 from sqlalchemy import text
 from flask import url_for
-from app import db, bcrypt
-from models import User, Project, Workload
+from parser.app import db, bcrypt
+from parser.models import User, Project, Workload
 
 
 def test_postgres_connection(db_session):
