@@ -1,0 +1,45 @@
+# FROM python:3.13-alpine AS base
+FROM demonstrationorg/dhi-python:3.13.5-alpine3.21-dev AS base
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+# Tell uv to use the system Python
+ENV UV_PYTHON_PREFERENCE=only-system
+
+# Set Flask port - in this case this will also be set in 
+# compose-dhi.yaml so is not needed.
+# ENV FLASK_RUN_PORT=5001
+
+# Set uv cache directory to a writable location
+ENV UV_CACHE_DIR=/tmp/uv-cache
+
+WORKDIR /app
+
+# Copy project files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using uv (as root to avoid permission issues)
+# excludes dev dependencies
+RUN uv sync --frozen --no-dev
+
+# Copy application code and tests
+COPY ./parser ./parser
+
+EXPOSE 5001
+
+FROM demonstrationorg/dhi-python:3.13.5-alpine3.21 AS production
+WORKDIR /app
+
+# Copy the contents of the /app directory, which contains both the virtual environment
+# as well as the application code.  The venv lives in /app/.venv, while 
+# the application source code lives in /app/parser
+COPY --chown=nonroot:nonroot --from=base /app .
+
+# update the CMD to use absolute paths, as the virtual python environment
+# cannot be activated through the use of ENV variables
+# CMD ["uv", "run", "flask", "run", "--host=0.0.0.0"]
+CMD [ "/app/.venv/bin/flask", "--app", "parser/app", "run", "--host=0.0.0.0"]

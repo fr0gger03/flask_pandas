@@ -10,6 +10,8 @@ ENV PYTHONUNBUFFERED=1
 ENV UV_PYTHON_PREFERENCE=only-system
 # Set Flask app location
 ENV FLASK_APP=parser/app.py
+# Set Flask port
+ENV FLASK_RUN_PORT=5001
 
 # Set uv cache directory to a writable location
 ENV UV_CACHE_DIR=/tmp/uv-cache
