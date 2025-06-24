@@ -79,3 +79,43 @@
   .dropdown:hover .dropdown-content {
     display: block;
   }
+
+  /* Form styling for better visibility */
+  .form-label {
+    color: white !important;
+    font-weight: 500;
+  }
+  
+  .form-control {
+    background-color: #495057;
+    border-color: #6c757d;
+    color: white;
+  }
+  
+  .form-control:focus {
+    background-color: #495057;
+    border-color: #007cba;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(0, 124, 186, 0.25);
+  }
+  
+  .form-control::placeholder {
+    color: #adb5bd;
+  }
+  
+  .form-text {
+    color: #adb5bd !important;
+  }
+  
+  .form-select {
+    background-color: #495057;
+    border-color: #6c757d;
+    color: white;
+  }
+  
+  .form-select:focus {
+    background-color: #495057;
+    border-color: #007cba;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(0, 124, 186, 0.25);
+  }
