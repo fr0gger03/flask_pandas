@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField, DecimalField
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import InputRequired, Length, ValidationError, Optional
 
@@ -65,20 +65,18 @@ class EditProjectForm(FlaskForm):
                     'That project name already exists. Please choose a different one.')
 
 class CreateWorkloadForm(FlaskForm):
-    from wtforms import StringField, IntegerField, SelectField, DecimalField
-    
     # Basic VM Information
     vmname = StringField('VM Name', validators=[
-        InputRequired(), Length(min=1, max=40)], render_kw={"placeholder": "VM Name"})
+        InputRequired(), Length(min=1, max=100)], render_kw={"placeholder": "VM Name"})
     
     mobid = StringField('MOB ID', validators=[
-        Length(max=20)], render_kw={"placeholder": "VMware Managed Object ID"})
+        Length(max=50)], render_kw={"placeholder": "VMware Managed Object ID"})
     
     os = StringField('Operating System', validators=[
-        Length(max=40)], render_kw={"placeholder": "e.g., Windows Server 2019"})
+        Length(max=120)], render_kw={"placeholder": "e.g., Windows Server 2019"})
     
     os_name = StringField('Hostname', validators=[
-        Length(max=40)], render_kw={"placeholder": "e.g., web-server-01"})
+        Length(max=100)], render_kw={"placeholder": "e.g., web-server-01"})
     
     vmstate = SelectField('VM State', choices=[
         ('poweredOn', 'Powered On'),
@@ -95,13 +93,13 @@ class CreateWorkloadForm(FlaskForm):
     
     # Infrastructure Information
     cluster = StringField('Cluster', validators=[
-        Length(max=40)], render_kw={"placeholder": "Cluster name"})
+        Length(max=100)], render_kw={"placeholder": "Cluster name"})
     
     virtualdatacenter = StringField('Datacenter', validators=[
-        Length(max=40)], render_kw={"placeholder": "Datacenter name"})
+        Length(max=100)], render_kw={"placeholder": "Datacenter name"})
     
     ip_addresses = StringField('IP Addresses', validators=[
-        Length(max=60)], render_kw={"placeholder": "192.168.1.10, 10.0.0.5"})
+        Length(max=255)], render_kw={"placeholder": "192.168.1.10, 10.0.0.5"})
     
     # Storage Information
     vinfo_provisioned = DecimalField('vInfo Provisioned (GB)', validators=[
