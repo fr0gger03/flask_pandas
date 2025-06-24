@@ -31,16 +31,16 @@ class Workload(db.Model):
     __tablename__ = 'workloads_tb'
     vmid = db.Column(db.Integer, primary_key=True)
     pid = db.Column(db.Integer, db.ForeignKey('projects_tb.pid'), nullable=False)
-    mobid = db.Column(db.String(20))
-    cluster = db.Column(db.String(40))
-    virtualdatacenter = db.Column(db.String(40))
-    os = db.Column(db.String(40))
-    os_name = db.Column(db.String(40))
-    vmstate = db.Column(db.String(20))
+    mobid = db.Column(db.String(50))  # Increased for longer MOB IDs
+    cluster = db.Column(db.String(100))  # Increased for longer cluster names
+    virtualdatacenter = db.Column(db.String(100))  # Increased for longer datacenter names
+    os = db.Column(db.String(120))  # Increased for full OS descriptions like "Microsoft Windows Server 2016 or later (64-bit)"
+    os_name = db.Column(db.String(100))  # Increased for longer hostnames
+    vmstate = db.Column(db.String(30))  # Slightly increased for VM states
     vcpu = db.Column(db.Integer)
-    vmname = db.Column(db.String(40))
+    vmname = db.Column(db.String(100))  # Increased for longer VM names
     vram = db.Column(db.Integer)
-    ip_addresses = db.Column(db.String(60))
+    ip_addresses = db.Column(db.String(255))  # Significantly increased for multiple IPv4/IPv6 addresses
     vinfo_provisioned = db.Column(db.Numeric(12,6))
     vinfo_used = db.Column(db.Numeric(12,6))
     vmdktotal = db.Column(db.Numeric(12,6))
