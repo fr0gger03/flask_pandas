@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Analytics{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Analytics</li>
+    </ol>
+  </nav>
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+  <!-- Summary Statistics -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card bg-dark border-info">
+        <div class="card-header">
+          <h6><i class="fas fa-folder"></i> Total Projects</h6>
+        </div>
+        <div class="card-body text-center">
+          <h3 class="text-info">{{ project_count }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-dark border-success">
+        <div class="card-header">
+          <h6><i class="fas fa-server"></i> Total Workloads</h6>
+        </div>
+        <div class="card-body text-center">
+          <h3 class="text-success">{{ total_workloads }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-dark border-warning">
+        <div class="card-header">
+          <h6><i class="fas fa-microchip"></i> Total vCPUs</h6>
+        </div>
+        <div class="card-body text-center">
+          <h3 class="text-warning">{{ total_vcpus }}</h3>
+          <small class="text-muted">Avg: {{ avg_cpu_per_vm }} per VM</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-dark border-danger">
+        <div class="card-header">
+          <h6><i class="fas fa-memory"></i> Total vRAM</h6>
+        </div>
+        <div class="card-body text-center">
+          <h3 class="text-danger">{{ total_vram_gb }} GB</h3>
+          <small class="text-muted">Avg: {{ avg_ram_per_vm }} GB per VM</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Storage Summary -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5><i class="fas fa-hdd"></i> Storage Summary</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-4">
+              <h4 class="text-primary">{{ total_storage_gb }} GB</h4>
+              <small>Total Storage</small>
+            </div>
+            <div class="col-md-4">
+              <h4 class="text-info">{{ avg_storage_per_vm }} GB</h4>
+              <small>Average per VM</small>
+            </div>
+            <div class="col-md-4">
+              <h4 class="text-secondary">{{ (total_storage_gb / 1024)|round(2) }} TB</h4>
+              <small>Total in TB</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Distribution Charts -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5><i class="fas fa-chart-pie"></i> Operating System Distribution</h5>
+        </div>
+        <div class="card-body">
+          {% if os_distribution %}
+            <div class="table-responsive">
+              <table class="table table-dark table-sm">
+                <thead>
+                  <tr>
+                    <th>Operating System</th>
+                    <th>Count</th>
+                    <th>%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for os, count in os_distribution %}
+                  <tr>
+                    <td>{{ os if os else 'Unknown' }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ (count / total_workloads * 100)|round(1) }}%</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No OS data available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5><i class="fas fa-microchip"></i> CPU Count Distribution</h5>
+        </div>
+        <div class="card-body">
+          {% if cpu_distribution %}
+            <div class="table-responsive">
+              <table class="table table-dark table-sm">
+                <thead>
+                  <tr>
+                    <th>vCPUs</th>
+                    <th>Count</th>
+                    <th>%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for vcpu, count in cpu_distribution %}
+                  <tr>
+                    <td>{{ vcpu if vcpu else 'Unknown' }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ (count / total_workloads * 100)|round(1) }}%</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No CPU data available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5><i class="fas fa-network-wired"></i> Cluster Distribution</h5>
+        </div>
+        <div class="card-body">
+          {% if cluster_distribution %}
+            <div class="table-responsive">
+              <table class="table table-dark table-sm">
+                <thead>
+                  <tr>
+                    <th>Cluster</th>
+                    <th>Count</th>
+                    <th>%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for cluster, count in cluster_distribution %}
+                  <tr>
+                    <td>{{ cluster if cluster else 'Unknown' }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ (count / total_workloads * 100)|round(1) }}%</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No cluster data available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5><i class="fas fa-power-off"></i> VM State Distribution</h5>
+        </div>
+        <div class="card-body">
+          {% if state_distribution %}
+            <div class="table-responsive">
+              <table class="table table-dark table-sm">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Count</th>
+                    <th>%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for state, count in state_distribution %}
+                  <tr>
+                    <td>
+                      <span class="badge bg-{{ 'success' if state == 'poweredOn' else 'secondary' }}">
+                        {{ state if state else 'Unknown' }}
+                      </span>
+                    </td>
+                    <td>{{ count }}</td>
+                    <td>{{ (count / total_workloads * 100)|round(1) }}%</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No state data available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

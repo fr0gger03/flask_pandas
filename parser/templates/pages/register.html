@@ -6,17 +6,46 @@
 {% endblock header %}
 
 {% block content %}
-<form method="POST" action="">
-  {{ form.hidden_tag() }}
-  {{ form.username }}
-  {{ form.password }}
-  {{ form.submit }}
-  <br>
-  {% for error in form.username.errors %}
-  <span style="color: red;">[{{ error }}]</span>
-  {% endfor %}
-</form>
-<br>
-<br><a href="{{ url_for('pages.login') }}">Already have an account? Log In</a>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5>Create Your Account</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+              {{ form.username.label(class="form-label") }}
+              {{ form.username(class="form-control") }}
+              {% for error in form.username.errors %}
+                <div class="text-danger mt-1">[{{ error }}]</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.password.label(class="form-label") }}
+              {{ form.password(class="form-control") }}
+              {% for error in form.password.errors %}
+                <div class="text-danger mt-1">[{{ error }}]</div>
+              {% endfor %}
+            </div>
+            
+            <div class="d-grid">
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </form>
+          
+          <hr class="my-4">
+          <div class="text-center">
+            <a href="{{ url_for('pages.login') }}" class="text-light">Already have an account? Log In</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}

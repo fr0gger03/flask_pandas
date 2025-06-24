@@ -5,6 +5,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from parser.app import db, bcrypt
 from parser.forms import RegisterForm, LoginForm, UploadFileForm, CreateProjectForm, CreateWorkloadForm, EditProjectForm, EditWorkloadForm
 from parser.models import User, Workload, Project
+from sqlalchemy import func, desc
 
 import os, sys
 import pandas as pd
@@ -565,6 +566,91 @@ def cancel_upload():
     
     flash('Upload cancelled.', 'info')
     return redirect(url_for('pages.dashboard'))
+
+
+@bp.route("/analytics")
+@login_required
+def analytics():
+    # Total projects and workloads (using unique vmid)
+    project_count = Project.query.filter_by(userid=current_user.id).count()
+    total_workloads = Workload.query.join(Project).filter(Project.userid==current_user.id).count()
+
+    # Group workloads by attributes (using distinct vmid for accurate counting)
+    os_distribution = db.session.query(
+        Workload.os, 
+        func.count(func.distinct(Workload.vmid))
+    ).join(Project).filter(
+        Project.userid==current_user.id,
+        Workload.os.isnot(None),
+        Workload.os != ''
+    ).group_by(Workload.os).order_by(desc(func.count(func.distinct(Workload.vmid)))).all()
+    
+    cpu_distribution = db.session.query(
+        Workload.vcpu, 
+        func.count(func.distinct(Workload.vmid))
+    ).join(Project).filter(
+        Project.userid==current_user.id,
+        Workload.vcpu.isnot(None)
+    ).group_by(Workload.vcpu).order_by(desc(func.count(func.distinct(Workload.vmid)))).all()
+    
+    cluster_distribution = db.session.query(
+        Workload.cluster, 
+        func.count(func.distinct(Workload.vmid))
+    ).join(Project).filter(
+        Project.userid==current_user.id,
+        Workload.cluster.isnot(None),
+        Workload.cluster != ''
+    ).group_by(Workload.cluster).order_by(desc(func.count(func.distinct(Workload.vmid)))).all()
+    
+    # VM State distribution
+    state_distribution = db.session.query(
+        Workload.vmstate, 
+        func.count(func.distinct(Workload.vmid))
+    ).join(Project).filter(
+        Project.userid==current_user.id,
+        Workload.vmstate.isnot(None),
+        Workload.vmstate != ''
+    ).group_by(Workload.vmstate).order_by(desc(func.count(func.distinct(Workload.vmid)))).all()
+    
+    # Resource totals (using distinct vmid to avoid double counting)
+    resource_totals = db.session.query(
+        func.sum(Workload.vcpu),
+        func.sum(Workload.vram),
+        func.sum(Workload.vmdktotal)
+    ).join(Project).filter(
+        Project.userid==current_user.id
+    ).first()
+    
+    total_vcpus = int(resource_totals[0] or 0)
+    total_vram_mb = int(resource_totals[1] or 0)
+    total_vram_gb = round(total_vram_mb / 1024, 2) if total_vram_mb else 0
+    total_storage_gb = round(float(resource_totals[2] or 0), 2)
+    
+    # Average resource utilization
+    avg_cpu_per_vm = round(total_vcpus / total_workloads, 2) if total_workloads > 0 else 0
+    avg_ram_per_vm = round(total_vram_gb / total_workloads, 2) if total_workloads > 0 else 0
+    avg_storage_per_vm = round(total_storage_gb / total_workloads, 2) if total_workloads > 0 else 0
+
+    return render_template("pages/analytics.html", 
+                           project_count=project_count, 
+                           total_workloads=total_workloads, 
+                           os_distribution=os_distribution,
+                           cpu_distribution=cpu_distribution,
+                           cluster_distribution=cluster_distribution,
+                           state_distribution=state_distribution,
+                           total_vcpus=total_vcpus,
+                           total_vram_gb=total_vram_gb,
+                           total_storage_gb=total_storage_gb,
+                           avg_cpu_per_vm=avg_cpu_per_vm,
+                           avg_ram_per_vm=avg_ram_per_vm,
+                           avg_storage_per_vm=avg_storage_per_vm)
+
+
+@bp.route("/reports")
+@login_required
+def reports():
+    # Implement any additional logic for generating reports
+    return render_template("pages/reports.html")
 
 
 @bp.route("/about")

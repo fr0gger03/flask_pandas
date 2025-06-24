@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Reports{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Reports</li>
+    </ol>
+  </nav>
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5>Workload Assessment Reports</h5>
+        </div>
+        <div class="card-body">
+          <p>Comprehensive analysis and recommendations for your workload migration and optimization.</p>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card bg-secondary border-light mb-3">
+                <div class="card-header">
+                  <h6>Infrastructure Summary</h6>
+                </div>
+                <div class="card-body">
+                  <a href="{{ url_for('pages.analytics') }}" class="btn btn-primary">View Analytics</a>
+                  <p class="mt-2 small">Get insights into your workload distribution and resource utilization.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card bg-secondary border-light mb-3">
+                <div class="card-header">
+                  <h6>Migration Readiness</h6>
+                </div>
+                <div class="card-body">
+                  <button class="btn btn-warning" disabled>Coming Soon</button>
+                  <p class="mt-2 small">Assessment of workload compatibility and migration recommendations.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card bg-secondary border-light mb-3">
+                <div class="card-header">
+                  <h6>Cost Optimization</h6>
+                </div>
+                <div class="card-body">
+                  <button class="btn btn-warning" disabled>Coming Soon</button>
+                  <p class="mt-2 small">Right-sizing recommendations and cost optimization opportunities.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card bg-secondary border-light mb-3">
+                <div class="card-header">
+                  <h6>Performance Analysis</h6>
+                </div>
+                <div class="card-body">
+                  <button class="btn btn-warning" disabled>Coming Soon</button>
+                  <p class="mt-2 small">IOPS, throughput, and resource utilization analysis.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
