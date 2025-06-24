@@ -103,6 +103,7 @@
                     This data will be permanently saved to your database.
                   </p>
                   <form method="POST" action="{{ url_for('pages.save_workloads') }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="btn btn-success btn-lg">
                       <i class="fas fa-save"></i> Save {{ workload_count }} Workloads
                     </button>
@@ -122,6 +123,7 @@
                     You can upload a different file or try again later.
                   </p>
                   <form method="POST" action="{{ url_for('pages.cancel_upload') }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="btn btn-danger btn-lg">
                       <i class="fas fa-times"></i> Cancel Import
                     </button>
