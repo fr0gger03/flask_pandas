@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Edit Project{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.view_project', project_id=project.pid) }}">{{ project.projectname }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+  </nav>
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5>Edit Project Details</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('pages.edit_project', project_id=project.pid) }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+              {{ form.projectname.label(class="form-label") }}
+              {{ form.projectname(class="form-control") }}
+              {% for error in form.projectname.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="d-grid gap-2">
+              {{ form.submit(class="btn btn-warning") }}
+              <a href="{{ url_for('pages.view_project', project_id=project.pid) }}" class="btn btn-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <div class="card bg-dark border-danger mt-4">
+        <div class="card-header">
+          <h5 class="text-danger">Danger Zone</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">Once you delete a project, there is no going back. This will permanently delete the project and all associated workloads.</p>
+          <a href="{{ url_for('pages.delete_project', project_id=project.pid) }}" class="btn btn-danger" onclick="return confirm('Are you absolutely sure? This action cannot be undone!')">
+            Delete This Project
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

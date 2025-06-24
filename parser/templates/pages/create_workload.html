@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Add Workload to {{ project.projectname }}{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.view_project', project_id=project.pid) }}">{{ project.projectname }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Workload</li>
+    </ol>
+  </nav>
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+  <form method="POST" action="{{ url_for('pages.create_workload', project_id=project.pid) }}">
+    {{ form.hidden_tag() }}
+    
+    <div class="row">
+      <!-- Basic VM Information -->
+      <div class="col-md-6">
+        <div class="card bg-dark border-light mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-server"></i> Basic VM Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              {{ form.vmname.label(class="form-label") }}
+              {{ form.vmname(class="form-control") }}
+              {% for error in form.vmname.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.mobid.label(class="form-label") }}
+              {{ form.mobid(class="form-control") }}
+              {% for error in form.mobid.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.os.label(class="form-label") }}
+              {{ form.os(class="form-control") }}
+              {% for error in form.os.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.os_name.label(class="form-label") }}
+              {{ form.os_name(class="form-control") }}
+              {% for error in form.os_name.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.vmstate.label(class="form-label") }}
+              {{ form.vmstate(class="form-control") }}
+              {% for error in form.vmstate.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.ip_addresses.label(class="form-label") }}
+              {{ form.ip_addresses(class="form-control") }}
+              {% for error in form.ip_addresses.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+              <div class="form-text">Separate multiple IPs with commas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Resource Allocation -->
+      <div class="col-md-6">
+        <div class="card bg-dark border-light mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-microchip"></i> Resource Allocation</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              {{ form.vcpu.label(class="form-label") }}
+              {{ form.vcpu(class="form-control") }}
+              {% for error in form.vcpu.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.vram.label(class="form-label") }}
+              {{ form.vram(class="form-control") }}
+              {% for error in form.vram.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Infrastructure Information -->
+        <div class="card bg-dark border-light mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-building"></i> Infrastructure</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              {{ form.cluster.label(class="form-label") }}
+              {{ form.cluster(class="form-control") }}
+              {% for error in form.cluster.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="mb-3">
+              {{ form.virtualdatacenter.label(class="form-label") }}
+              {{ form.virtualdatacenter(class="form-control") }}
+              {% for error in form.virtualdatacenter.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Storage Information -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card bg-dark border-warning mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-hdd"></i> Storage Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  {{ form.vmdktotal.label(class="form-label") }}
+                  {{ form.vmdktotal(class="form-control") }}
+                  {% for error in form.vmdktotal.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  {{ form.vmdkused.label(class="form-label") }}
+                  {{ form.vmdkused(class="form-control") }}
+                  {% for error in form.vmdkused.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  {{ form.vinfo_provisioned.label(class="form-label") }}
+                  {{ form.vinfo_provisioned(class="form-control") }}
+                  {% for error in form.vinfo_provisioned.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                  <div class="form-text">Optional - from vInfo sheet</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  {{ form.vinfo_used.label(class="form-label") }}
+                  {{ form.vinfo_used(class="form-control") }}
+                  {% for error in form.vinfo_used.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                  <div class="form-text">Optional - from vInfo sheet</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Metrics -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card bg-dark border-info mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-tachometer-alt"></i> IOPS Performance</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.readiops.label(class="form-label") }}
+                  {{ form.readiops(class="form-control") }}
+                  {% for error in form.readiops.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.writeiops.label(class="form-label") }}
+                  {{ form.writeiops(class="form-control") }}
+                  {% for error in form.writeiops.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.peakreadiops.label(class="form-label") }}
+                  {{ form.peakreadiops(class="form-control") }}
+                  {% for error in form.peakreadiops.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.peakwriteiops.label(class="form-label") }}
+                  {{ form.peakwriteiops(class="form-control") }}
+                  {% for error in form.peakwriteiops.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card bg-dark border-success mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-chart-line"></i> Throughput Performance</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.readthroughput.label(class="form-label") }}
+                  {{ form.readthroughput(class="form-control") }}
+                  {% for error in form.readthroughput.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.writethroughput.label(class="form-label") }}
+                  {{ form.writethroughput(class="form-control") }}
+                  {% for error in form.writethroughput.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.peakreadthroughput.label(class="form-label") }}
+                  {{ form.peakreadthroughput(class="form-control") }}
+                  {% for error in form.peakreadthroughput.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.peakwritethroughput.label(class="form-label") }}
+                  {{ form.peakwritethroughput(class="form-control") }}
+                  {% for error in form.peakwritethroughput.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="form-text">All performance metrics are optional and typically populated from uploaded assessment data.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <a href="{{ url_for('pages.view_project', project_id=project.pid) }}" class="btn btn-secondary me-md-2">Cancel</a>
+          {{ form.submit(class="btn btn-success") }}
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}

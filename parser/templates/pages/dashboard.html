@@ -2,11 +2,83 @@
 
 {% block header %}
   <h2>{% block title %}Dashboard{% endblock title %}</h2>
-  <h3>You are logged in - welcome to the party!</h3>
+  <h3>Welcome back, {{ current_user.username }}!</h3>
 {% endblock header %}
 
 {% block content %}
-  <p>
-    This is the dashboard.
-  </p>
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h4>Your Projects</h4>
+      {% if user_projects %}
+        <div class="table-responsive">
+          <table class="table table-dark table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Workloads</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in user_projects %}
+              <tr>
+                <td>{{ project.projectname }}</td>
+                <td>
+                  <span class="badge bg-info">{{ project.workloads|length }} workloads</span>
+                </td>
+                <td>
+                  <a href="{{ url_for('pages.view_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-light">View</a>
+                  <a href="{{ url_for('pages.edit_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                  <a href="{{ url_for('pages.delete_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this project and all its workloads?')">Delete</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <h5>No projects yet!</h5>
+          <p>Create your first project to start organizing your workload assessments.</p>
+          <a href="{{ url_for('pages.create_project') }}" class="btn btn-primary">Create Your First Project</a>
+        </div>
+      {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5>Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('pages.create_project') }}" class="btn btn-success">New Project</a>
+            <a href="{{ url_for('pages.upload') }}" class="btn btn-primary">Upload Workload Data</a>
+          </div>
+        </div>
+      </div>
+      
+      {% if user_projects %}
+      <div class="card bg-dark border-light mt-3">
+        <div class="card-header">
+          <h5>Statistics</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <h3 class="text-info">{{ user_projects|length }}</h3>
+              <small>Projects</small>
+            </div>
+            <div class="col-6">
+              <h3 class="text-success">{{ total_workloads }}</h3>
+              <small>Workloads</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock content %}

@@ -1,23 +1,31 @@
 <nav>
   <ul>
     <li><a href="{{ url_for('pages.home') }}">Home</a></li>
-    <li class="dropdown">
-      <a href="javascript:void(0)" class="dropbtn">Auth</a>
-      <div class="dropdown-content">
-        <a href="{{ url_for('pages.register') }}">Register</a>
-        <a href="{{ url_for('pages.login') }}">Login</a>
-        <a href="{{ url_for('pages.profile') }}">Profile</a>
-        <a href="{{ url_for('pages.logout') }}">Logout</a>
-      </div>
-    </li>
-    <li class="dropdown">
-      <a href="javascript:void(0)" class="dropbtn">Workloads</a>
-      <div class="dropdown-content">
-        <a href="{{ url_for('pages.dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('pages.create_project') }}">New Project</a>
-        <a href="{{ url_for('pages.upload') }}">Upload</a>
-      </div>
-    </li>  
+    {% if current_user.is_authenticated %}
+      <li class="dropdown">
+        <a href="javascript:void(0)" class="dropbtn">Projects</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('pages.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('pages.create_project') }}">New Project</a>
+          <a href="{{ url_for('pages.upload') }}">Upload Data</a>
+        </div>
+      </li>
+      <li class="dropdown">
+        <a href="javascript:void(0)" class="dropbtn">{{ current_user.username }}</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('pages.profile') }}">Profile</a>
+          <a href="{{ url_for('pages.logout') }}">Logout</a>
+        </div>
+      </li>
+    {% else %}
+      <li class="dropdown">
+        <a href="javascript:void(0)" class="dropbtn">Account</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('pages.register') }}">Register</a>
+          <a href="{{ url_for('pages.login') }}">Login</a>
+        </div>
+      </li>
+    {% endif %}
     <li><a href="{{ url_for('pages.about') }}">About</a></li>
   </ul>
 </nav>

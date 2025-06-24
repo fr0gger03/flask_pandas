@@ -1,13 +1,105 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h2>{% block title %}Upload Excel File{% endblock title %}</h2>
+  <h2>{% block title %}Upload Workload Data{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      {% if selected_project %}
+        <li class="breadcrumb-item"><a href="{{ url_for('pages.view_project', project_id=selected_project.pid) }}">{{ selected_project.projectname }}</a></li>
+      {% endif %}
+      <li class="breadcrumb-item active" aria-current="page">Upload Data</li>
+    </ol>
+  </nav>
 {% endblock header %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data" action="">
-  {{ form.hidden_tag() }}
-  {{ form.file}}
-  {{ form.submit }}
-</form>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5><i class="fas fa-upload"></i> Upload Workload Assessment File</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ form.hidden_tag() }}
+            
+            {% if not selected_project %}
+            <!-- Project Selection -->
+            <div class="mb-3">
+              <label for="project_id" class="form-label">Select Project</label>
+              <select name="project_id" id="project_id" class="form-control" required>
+                <option value="">Choose a project...</option>
+                {% for project in user_projects %}
+                  <option value="{{ project.pid }}">{{ project.projectname }}</option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Select which project to import the workloads into</div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> 
+              Uploading to project: <strong>{{ selected_project.projectname }}</strong>
+            </div>
+            {% endif %}
+            
+            <!-- File Upload -->
+            <div class="mb-3">
+              {{ form.file.label(class="form-label") }}
+              {{ form.file(class="form-control") }}
+              {% for error in form.file.errors %}
+                <div class="text-danger">{{ error }}</div>
+              {% endfor %}
+              <div class="form-text">
+                Supported formats: LiveOptics (.xlsx) and RVTools (.xlsx) files
+              </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              {{ form.submit(class="btn btn-primary btn-lg") }}
+              <a href="{{ url_for('pages.dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Help Section -->
+      <div class="card bg-dark border-info mt-4">
+        <div class="card-header">
+          <h6><i class="fas fa-question-circle"></i> Supported File Types</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-info">LiveOptics Files</h6>
+              <ul class="small">
+                <li>Must contain standard LiveOptics sheets</li>
+                <li>VMs and VM Performance sheets required</li>
+                <li>Automatically extracts performance metrics</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-success">RVTools Files</h6>
+              <ul class="small">
+                <li>Must contain vInfo, vDisk, and vPartition sheets</li>
+                <li>Supports both MB and MiB storage units</li>
+                <li>Automatically consolidates storage data</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {% if not user_projects %}
+      <div class="alert alert-warning mt-4">
+        <h6><i class="fas fa-exclamation-triangle"></i> No Projects Found</h6>
+        <p>You need to create a project before uploading workload data.</p>
+        <a href="{{ url_for('pages.create_project') }}" class="btn btn-warning">Create Your First Project</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock content %}

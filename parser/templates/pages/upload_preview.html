@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Preview Upload Data{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.view_project', project_id=project.pid) }}">{{ project.projectname }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.upload', project_id=project.pid) }}">Upload</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Preview</li>
+    </ol>
+  </nav>
+{% endblock header %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Upload Summary -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card bg-dark border-success">
+        <div class="card-header">
+          <h5><i class="fas fa-check-circle text-success"></i> File Processed Successfully</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-success">{{ workload_count }}</h4>
+                <small>Workloads Found</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6 class="text-info">{{ file_name }}</h6>
+                <small>Source File</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6 class="text-warning">{{ file_type.title().replace('-', ' ') }}</h6>
+                <small>File Type</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6 class="text-primary">{{ project.projectname }}</h6>
+                <small>Target Project</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Preview -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card bg-dark border-light">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5><i class="fas fa-table"></i> Data Preview</h5>
+          <span class="badge bg-info">{{ workload_count }} workloads</span>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Review the data below before importing.</strong> 
+            This preview shows the workloads that will be added to your project. You can save them to the database or cancel and try again.
+          </div>
+          
+          <!-- Data Table -->
+          <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+            {% for table in tables %}
+              {{ table|safe }}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card bg-dark border-warning">
+        <div class="card-header">
+          <h5><i class="fas fa-save"></i> Save to Database</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">
+            Choose what to do with the processed workload data:
+          </p>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card bg-success border-success mb-3">
+                <div class="card-body">
+                  <h6 class="card-title text-white">
+                    <i class="fas fa-save"></i> Save to Project
+                  </h6>
+                  <p class="card-text small">
+                    Import all {{ workload_count }} workloads into the "{{ project.projectname }}" project. 
+                    This data will be permanently saved to your database.
+                  </p>
+                  <form method="POST" action="{{ url_for('pages.save_workloads') }}" class="d-inline">
+                    <button type="submit" class="btn btn-success btn-lg">
+                      <i class="fas fa-save"></i> Save {{ workload_count }} Workloads
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card bg-danger border-danger mb-3">
+                <div class="card-body">
+                  <h6 class="card-title text-white">
+                    <i class="fas fa-times-circle"></i> Cancel Import
+                  </h6>
+                  <p class="card-text small">
+                    Discard this data and return to the dashboard. 
+                    You can upload a different file or try again later.
+                  </p>
+                  <form method="POST" action="{{ url_for('pages.cancel_upload') }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                      <i class="fas fa-times"></i> Cancel Import
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-3">
+            <small class="text-muted">
+              <i class="fas fa-lightbulb"></i> 
+              <strong>Tip:</strong> If the data doesn't look correct, cancel and check your source file. 
+              Make sure it's a valid LiveOptics or RVTools export with the expected sheet structure.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Custom styles for data preview table */
+#workload-preview-table {
+  font-size: 0.85rem;
+}
+
+#workload-preview-table th {
+  position: sticky;
+  top: 0;
+  background-color: #495057;
+  z-index: 10;
+}
+
+#workload-preview-table td, 
+#workload-preview-table th {
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#workload-preview-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+</style>
+
+<script>
+// Add confirmation to save action
+document.querySelector('form[action*="save_workloads"] button').addEventListener('click', function(e) {
+  if (!confirm('Are you sure you want to save these {{ workload_count }} workloads to the "{{ project.projectname }}" project? This action cannot be undone.')) {
+    e.preventDefault();
+  }
+});
+</script>
+{% endblock content %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Project: {{ project.projectname }}{% endblock title %}</h2>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('pages.dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ project.projectname }}</li>
+    </ol>
+  </nav>
+{% endblock header %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Workloads ({{ project.workloads|length }})</h4>
+        <div>
+          <a href="{{ url_for('pages.upload', project_id=project.pid) }}" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Upload New Data
+          </a>
+          <a href="{{ url_for('pages.create_workload', project_id=project.pid) }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add Workload
+          </a>
+        </div>
+      </div>
+      
+      {% if project.workloads %}
+        <div class="table-responsive">
+          <table class="table table-dark table-striped table-hover table-sm">
+            <thead>
+              <tr>
+                <th>VM Name</th>
+                <th>OS</th>
+                <th>vCPU</th>
+                <th>vRAM (GB)</th>
+                <th>Storage (GB)</th>
+                <th>Utilization</th>
+                <th>State</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for workload in project.workloads %}
+              <tr>
+                <td>{{ workload.vmname or 'N/A' }}</td>
+                <td>{{ workload.os or 'Unknown' }}</td>
+                <td>{{ workload.vcpu or 0 }}</td>
+                <td>{{ "%.1f"|format(workload.vram|float/1024) if workload.vram else '0.0' }}</td>
+                <td>{{ "%.1f"|format(workload.total_storage_gb) }}</td>
+                <td>
+                  {% if workload.storage_utilization_percent > 0 %}
+                    <span class="badge bg-{{ 'danger' if workload.storage_utilization_percent > 80 else 'warning' if workload.storage_utilization_percent > 60 else 'success' }}">
+                      {{ workload.storage_utilization_percent }}%
+                    </span>
+                  {% else %}
+                    <span class="badge bg-secondary">N/A</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge bg-{{ 'success' if workload.vmstate == 'poweredOn' else 'secondary' }}">
+                    {{ workload.vmstate or 'Unknown' }}
+                  </span>
+                </td>
+                <td>
+                  <a href="{{ url_for('pages.view_workload', workload_id=workload.vmid) }}" class="btn btn-sm btn-outline-light">View</a>
+                  <a href="{{ url_for('pages.edit_workload', workload_id=workload.vmid) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                  <a href="{{ url_for('pages.delete_workload', workload_id=workload.vmid) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Summary Statistics -->
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <h5>Project Summary</h5>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="card bg-dark border-info">
+                  <div class="card-body text-center">
+                    <h4 class="text-info">{{ project.workloads|length }}</h4>
+                    <small>Total VMs</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-dark border-success">
+                  <div class="card-body text-center">
+                    <h4 class="text-success">{{ total_vcpus }}</h4>
+                    <small>Total vCPUs</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-dark border-warning">
+                  <div class="card-body text-center">
+                    <h4 class="text-warning">{{ "%.1f"|format(total_vram) }}</h4>
+                    <small>Total vRAM (GB)</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-dark border-danger">
+                  <div class="card-body text-center">
+                    <h4 class="text-danger">{{ "%.1f"|format(total_storage) }}</h4>
+                    <small>Total Storage (GB)</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <h5>No workloads in this project yet!</h5>
+          <p>Upload an Excel file or manually add workloads to get started.</p>
+          <a href="{{ url_for('pages.upload', project_id=project.pid) }}" class="btn btn-primary">Upload Data</a>
+          <a href="{{ url_for('pages.create_workload', project_id=project.pid) }}" class="btn btn-success">Add Manually</a>
+        </div>
+      {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card bg-dark border-light">
+        <div class="card-header">
+          <h5>Project Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('pages.edit_project', project_id=project.pid) }}" class="btn btn-warning">Edit Project</a>
+            <a href="{{ url_for('pages.export_project', project_id=project.pid) }}" class="btn btn-info">Export Data</a>
+            <a href="{{ url_for('pages.delete_project', project_id=project.pid) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this project and all its workloads?')">Delete Project</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
