@@ -19,7 +19,24 @@ bp = Blueprint("pages", __name__)
 
 @bp.route("/")
 def home():
-    return render_template("pages/home.html")
+    context = {}
+    if current_user.is_authenticated:
+        # Get basic statistics for authenticated users
+        user_projects = Project.query.filter_by(userid=current_user.id).all()
+        total_workloads = sum(len(project.workloads) for project in user_projects)
+        
+        # Get recent projects (last 3)
+        recent_projects = Project.query.filter_by(userid=current_user.id)\
+                                     .order_by(desc(Project.pid))\
+                                     .limit(3).all()
+        
+        context.update({
+            'user_projects_count': len(user_projects),
+            'total_workloads': total_workloads,
+            'recent_projects': recent_projects
+        })
+    
+    return render_template("pages/home.html", **context)
 
 
 @bp.route("/dashboard", methods=['GET', 'POST'])

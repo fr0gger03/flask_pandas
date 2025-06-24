@@ -1,10 +1,299 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h2>{% block title %}You shall not pass...{% endblock title %}</h2>
-  <h3>... fly you fools!</h3>
+  <h2>{% block title %}Workload Assessment Platform{% endblock title %}</h2>
+  <h3>Transform your infrastructure data into actionable insights</h3>
 {% endblock header %}
 
 {% block content %}
-This is the homepage.
+<div class="container-fluid">
+  {% if current_user.is_authenticated %}
+    <!-- Authenticated User View -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="card bg-dark border-light">
+          <div class="card-header">
+            <h4 class="mb-0">Welcome back, {{ current_user.username }}!</h4>
+          </div>
+          <div class="card-body">
+            <p class="lead">Ready to analyze your infrastructure workloads?</p>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="d-grid gap-2">
+                  <a href="{{ url_for('pages.dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-speedometer2"></i> Go to Dashboard
+                  </a>
+                  <a href="{{ url_for('pages.create_project') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> New Project
+                  </a>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-grid gap-2">
+                  <a href="{{ url_for('pages.upload') }}" class="btn btn-info">
+                    <i class="bi bi-upload"></i> Upload Data
+                  </a>
+                  <a href="{{ url_for('pages.analytics') }}" class="btn btn-warning">
+                    <i class="bi bi-graph-up"></i> View Analytics
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card bg-dark border-light">
+          <div class="card-header">
+            <h5>Recent Projects</h5>
+          </div>
+          <div class="card-body">
+            {% if recent_projects %}
+              {% for project in recent_projects %}
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-secondary rounded">
+                  <div>
+                    <h6 class="mb-0">{{ project.projectname }}</h6>
+                    <small class="text-muted">{{ project.workloads|length }} workloads</small>
+                  </div>
+                  <a href="{{ url_for('pages.view_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-light">View</a>
+                </div>
+              {% endfor %}
+              <div class="mt-3">
+                <a href="{{ url_for('pages.dashboard') }}" class="btn btn-outline-light btn-sm w-100">View All Projects</a>
+              </div>
+            {% else %}
+              <p class="text-muted">No projects yet. Create your first project to get started!</p>
+              <a href="{{ url_for('pages.create_project') }}" class="btn btn-primary btn-sm">Create Project</a>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        {% if user_projects_count > 0 %}
+        <div class="card bg-dark border-light mt-3">
+          <div class="card-header">
+            <h5>Your Statistics</h5>
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-6">
+                <h3 class="text-info">{{ user_projects_count }}</h3>
+                <small>Projects</small>
+              </div>
+              <div class="col-6">
+                <h3 class="text-success">{{ total_workloads }}</h3>
+                <small>Workloads</small>
+              </div>
+            </div>
+            <div class="mt-3">
+              <a href="{{ url_for('pages.analytics') }}" class="btn btn-outline-warning btn-sm w-100">View Analytics</a>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Quick Stats for Authenticated Users -->
+    <div class="row">
+      <div class="col-12">
+        <h4 class="mb-3">Platform Features</h4>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-light text-center">
+          <div class="card-body">
+            <h2 class="text-primary">📊</h2>
+            <h6>Analytics</h6>
+            <p class="small text-muted">Comprehensive workload analysis and reporting</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-light text-center">
+          <div class="card-body">
+            <h2 class="text-success">📁</h2>
+            <h6>Project Management</h6>
+            <p class="small text-muted">Organize workloads by projects and environments</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-light text-center">
+          <div class="card-body">
+            <h2 class="text-info">⬆️</h2>
+            <h6>Data Import</h6>
+            <p class="small text-muted">Support for LiveOptics and RVTools exports</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-light text-center">
+          <div class="card-body">
+            <h2 class="text-warning">📈</h2>
+            <h6>Insights</h6>
+            <p class="small text-muted">Resource utilization and optimization recommendations</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  {% else %}
+    <!-- Anonymous User View -->
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <div class="hero-section">
+          <h1 class="display-4 fw-bold mb-4">Workload Assessment Made Simple</h1>
+          <p class="lead mb-4">
+            Transform your VMware infrastructure data into actionable insights. 
+            Import data from LiveOptics and RVTools, organize by projects, 
+            and generate comprehensive analytics for your workload assessments.
+          </p>
+          <div class="d-grid gap-2 d-md-block">
+            <a href="{{ url_for('pages.register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+            <a href="{{ url_for('pages.login') }}" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="row mb-5">
+      <div class="col-12 text-center mb-4">
+        <h2>Powerful Features for Infrastructure Assessment</h2>
+        <p class="text-muted">Everything you need to analyze and optimize your workloads</p>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-light h-100">
+          <div class="card-body text-center">
+            <div class="mb-3">
+              <span class="display-6">📊</span>
+            </div>
+            <h5 class="card-title">Advanced Analytics</h5>
+            <p class="card-text">
+              Get detailed insights into CPU, memory, and storage utilization. 
+              Identify optimization opportunities and plan migrations effectively.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-light h-100">
+          <div class="card-body text-center">
+            <div class="mb-3">
+              <span class="display-6">🔄</span>
+            </div>
+            <h5 class="card-title">Data Import</h5>
+            <p class="card-text">
+              Seamlessly import workload data from LiveOptics and RVTools exports. 
+              Automated processing and validation ensure data accuracy.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-light h-100">
+          <div class="card-body text-center">
+            <div class="mb-3">
+              <span class="display-6">📁</span>
+            </div>
+            <h5 class="card-title">Project Organization</h5>
+            <p class="card-text">
+              Organize workloads by projects, environments, or business units. 
+              Track multiple assessments and compare results over time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Getting Started Section -->
+    <div class="row mb-5">
+      <div class="col-lg-10 mx-auto">
+        <div class="card bg-dark border-primary">
+          <div class="card-header border-primary">
+            <h3 class="mb-0 text-center">Getting Started</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 text-center mb-3">
+                <div class="mb-3">
+                  <span class="badge bg-primary rounded-circle p-3">
+                    <span class="fs-4">1</span>
+                  </span>
+                </div>
+                <h5>Create Account</h5>
+                <p class="text-muted">Sign up for a free account to start organizing your workload assessments.</p>
+              </div>
+              <div class="col-md-4 text-center mb-3">
+                <div class="mb-3">
+                  <span class="badge bg-success rounded-circle p-3">
+                    <span class="fs-4">2</span>
+                  </span>
+                </div>
+                <h5>Upload Data</h5>
+                <p class="text-muted">Import your LiveOptics or RVTools exports to begin analysis.</p>
+              </div>
+              <div class="col-md-4 text-center mb-3">
+                <div class="mb-3">
+                  <span class="badge bg-info rounded-circle p-3">
+                    <span class="fs-4">3</span>
+                  </span>
+                </div>
+                <h5>Analyze & Report</h5>
+                <p class="text-muted">Generate insights and export comprehensive reports for stakeholders.</p>
+              </div>
+            </div>
+            <div class="text-center mt-4">
+              <a href="{{ url_for('pages.register') }}" class="btn btn-primary btn-lg">Start Your Assessment</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- About Section -->
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h3>About This Platform</h3>
+        <p class="text-muted">
+          This workload assessment platform evolved from the 
+          <a href="https://github.com/vmware-archive/vmware-cloud-sizer-companion-cli" target="_blank" class="text-decoration-none">
+            VMware Cloud Sizer Companion CLI
+          </a>. 
+          Built with Flask and Pandas, it provides a web-based interface for analyzing 
+          infrastructure workloads and planning cloud migrations.
+        </p>
+        <div class="mt-4">
+          <a href="{{ url_for('pages.about') }}" class="btn btn-outline-light">Learn More</a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+.hero-section {
+  padding: 4rem 0;
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.badge.rounded-circle {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
 {% endblock content %}
