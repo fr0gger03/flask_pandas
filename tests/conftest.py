@@ -100,7 +100,7 @@ def test_user(db_session):
 @pytest.fixture
 def test_project(db_session, test_user):
     """Create a test project"""
-    project = Project(userid=test_user.id, projectname="TestProjectFixture")
+    project = Project(userid=test_user.id, projectname=f"TestProject_{uuid.uuid4().hex[:8]}")
     db_session.add(project)
     db_session.commit()
     return project

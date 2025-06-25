@@ -78,7 +78,7 @@ def test_authenticated_dashboard_access(client, test_user):
     assert b'dashboard' in response.data.lower() or b'Dashboard' in response.data
 
 
-def test_authenticated_upload_access(client, test_user):
+def test_authenticated_upload_access(client, test_user, test_project):
     """Test accessing upload page after login"""
     # First login
     login_data = {
@@ -144,7 +144,7 @@ def test_file_upload_authentication_required(client):
     assert '/login' in response.headers['Location']
 
 
-def test_file_upload_with_authentication(client, test_user):
+def test_file_upload_with_authentication(client, test_user, test_project):
     """Test file upload functionality with authenticated user"""
     # First login
     login_data = {
