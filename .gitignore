@@ -8,3 +8,9 @@ __pycache__/
 .venv/
 uv.lock
 .python-version
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml
+.pytest_cache/
