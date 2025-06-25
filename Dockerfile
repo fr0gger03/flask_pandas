@@ -35,7 +35,7 @@ COPY pyproject.toml uv.lock ./
 # excludes dev dependencies
 RUN uv sync --frozen --no-dev
 
-# Copy application code and tests
+# Copy application code
 COPY ./parser ./parser
 
 RUN chown -R appuser:appuser /app && \

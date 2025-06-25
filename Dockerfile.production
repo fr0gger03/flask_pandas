@@ -1,0 +1,55 @@
+# Production Dockerfile for Flask Workload Parser with Gunicorn
+# Based on Flask deployment best practices: https://flask.palletsprojects.com/en/stable/deploying/
+
+FROM python:3.13-alpine
+
+# Set environment variables for production
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    FLASK_ENV=production \
+    FLASK_APP=parser/app.py \
+    FLASK_RUN_PORT=5001
+
+# Set uv cache directory to a writable location
+ENV UV_CACHE_DIR=/tmp/uv-cache
+
+WORKDIR /app
+
+ARG UID=10001
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/home/appuser" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    appuser
+
+# Install uv for dependency management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Copy dependency files
+COPY pyproject.toml uv.lock gunicorn.conf.py ./
+
+# Install production dependencies
+# Reference: https://github.com/astral-sh/uv documentation
+RUN uv sync --no-group dev --group prod
+
+# Copy application code
+COPY ./parser ./parser
+RUN chown -R appuser:appuser /app && \
+chown -R appuser:appuser /tmp/uv-cache 2>/dev/null || true
+
+# Switch to non-root user
+USER appuser
+
+# Expose port for Gunicorn
+EXPOSE 8000
+
+# Health check using curl to health endpoint
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run Gunicorn with Flask app factory pattern
+# Reference: https://flask.palletsprojects.com/en/stable/deploying/gunicorn/
+CMD [".venv/bin/gunicorn", "--config", "gunicorn.conf.py", "parser.app:create_app()"]

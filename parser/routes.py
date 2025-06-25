@@ -674,3 +674,27 @@ def reports():
 def about():
     return render_template("pages/about.html")
 
+
+@bp.route("/health")
+def health():
+    """Health check endpoint for load balancers and monitoring.
+    
+    Reference: https://flask.palletsprojects.com/en/stable/deploying/
+    """
+    from datetime import datetime
+    try:
+        # Basic database connectivity check
+        db.session.execute(db.text('SELECT 1'))
+        return {
+            "status": "healthy", 
+            "timestamp": datetime.utcnow().isoformat(),
+            "service": "flask-workload-parser",
+            "version": "1.0.0"
+        }, 200
+    except Exception as e:
+        return {
+            "status": "unhealthy", 
+            "timestamp": datetime.utcnow().isoformat(),
+            "error": str(e)
+        }, 503
+
