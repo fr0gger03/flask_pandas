@@ -30,7 +30,12 @@
                 <td>
                   <a href="{{ url_for('pages.view_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-light">View</a>
                   <a href="{{ url_for('pages.edit_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                  <a href="{{ url_for('pages.delete_project', project_id=project.pid) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this project and all its workloads?')">Delete</a>
+                  <form method="POST" action="{{ url_for('pages.delete_project', project_id=project.pid) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this project and all its workloads?')">
+                      Delete
+                    </button>
+                  </form>
                 </td>
               </tr>
               {% endfor %}
