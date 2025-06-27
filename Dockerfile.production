@@ -1,6 +1,3 @@
-# Production Dockerfile for Flask Workload Parser with Gunicorn
-# Based on Flask deployment best practices: https://flask.palletsprojects.com/en/stable/deploying/
-
 FROM python:3.13-alpine
 
 # Set environment variables for production
