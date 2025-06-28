@@ -146,9 +146,14 @@ class EditWorkloadForm(CreateWorkloadForm):
     submit = SubmitField('Update Workload')
 
 class UploadFileForm(FlaskForm):
-    file = FileField('excel file', validators=[
+    file = FileField('Excel File (up to 10GB)', validators=[
         FileRequired(),
-        FileAllowed(['xls','xlsx'], 'Excel files only!')
-    ])  
-    submit = SubmitField('Upload File')
+        FileAllowed(['xls', 'xlsx'], 'Excel files only! (.xls or .xlsx)')
+    ], render_kw={
+        "accept": ".xls,.xlsx",
+        "class": "form-control-file",
+        "id": "file-upload",
+        "data-max-size": "10737418240"  # 10GB in bytes for client-side validation
+    })  
+    submit = SubmitField('Upload File', render_kw={"class": "btn btn-primary"})
 

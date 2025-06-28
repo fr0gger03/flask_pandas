@@ -1,0 +1,197 @@
+# Production Docker Compose with Nginx for Large File Uploads
+# This configuration supports up to 10GB file uploads with optimized performance
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:17.4
+    container_name: workload_parser_db_nginx
+    environment:
+      POSTGRES_DB: inventorydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data_nginx:/var/lib/postgresql/data
+      - ./parser/sql:/docker-entrypoint-initdb.d
+    networks:
+      - app_network_nginx
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask Application with Gunicorn
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: workload_parser_app_nginx
+    environment:
+      # Flask configuration
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
+      # Security settings
+      - WTF_CSRF_ENABLED=true
+      - WTF_CSRF_TIME_LIMIT=3600
+      # File upload limits - 10GB for large datasets
+      - MAX_CONTENT_LENGTH=10737418240  # 10GB
+    volumes:
+      # Persistent storage for uploaded files and logs
+      - app_input_nginx:/app/parser/input
+      - app_logs_nginx:/app/logs
+      # Shared volume for temporary upload storage
+      - nginx_upload_temp:/tmp/nginx_upload
+    networks:
+      - app_network_nginx
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Increased resource limits for large file processing
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: workload_parser_nginx
+    ports:
+      - "80:80"
+      - "443:443"  # For future HTTPS support
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - nginx_logs:/var/log/nginx
+      - nginx_upload_temp:/tmp/nginx_upload
+      # Mount static files if you have any
+      # - app_static:/app/parser/static:ro
+    networks:
+      - app_network_nginx
+    depends_on:
+      - app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Create upload temp directory with proper permissions
+    command: >
+      sh -c "mkdir -p /tmp/nginx_upload &&
+             chmod 777 /tmp/nginx_upload &&
+             nginx -g 'daemon off;'"
+
+  # Redis for session storage (optional but recommended for production)
+  redis:
+    image: redis:7-alpine
+    container_name: workload_parser_redis
+    networks:
+      - app_network_nginx
+    restart: unless-stopped
+    volumes:
+      - redis_data_nginx:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - with-redis  # Optional service
+
+  # Adminer for Database Management (Development/Debug only)
+  adminer:
+    image: adminer:latest
+    container_name: workload_parser_adminer_nginx
+    ports:
+      - "8081:8080"
+    networks:
+      - app_network_nginx
+    restart: unless-stopped
+    profiles:
+      - debug  # Only start with --profile debug
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+volumes:
+  # Persistent data volumes
+  postgres_data_nginx:
+    driver: local
+  app_input_nginx:
+    driver: local
+  app_logs_nginx:
+    driver: local
+  nginx_logs:
+    driver: local
+  nginx_upload_temp:
+    driver: local
+  redis_data_nginx:
+    driver: local
+
+networks:
+  app_network_nginx:
+    driver: bridge
+
+# Production deployment instructions:
+#
+# 1. Create environment file (.env.production):
+#    POSTGRES_PASSWORD=your-secure-database-password
+#    DATABASE_URL=postgresql://inventorydbuser:your-secure-database-password@db:5432/inventorydb
+#    SECRET_KEY=your-super-secret-key-change-this-in-production
+#    UPLOAD_FOLDER=parser/input/
+#
+# 2. Deploy with nginx:
+#    docker compose -f docker-compose.nginx.yml --env-file .env.production up -d
+#
+# 3. Deploy with nginx and redis:
+#    docker compose -f docker-compose.nginx.yml --profile with-redis --env-file .env.production up -d
+#
+# 4. Deploy with debugging tools:
+#    docker compose -f docker-compose.nginx.yml --profile debug --env-file .env.production up -d
+#
+# 5. Monitor services:
+#    docker compose -f docker-compose.nginx.yml logs -f
+#    docker compose -f docker-compose.nginx.yml ps
+#
+# 6. Test large file upload capability:
+#    curl -X POST -F "file=@large_file.xlsx" http://localhost/upload
+#
+# 7. Scale app instances if needed:
+#    docker compose -f docker-compose.nginx.yml up -d --scale app=2
+#
+# Configuration highlights:
+# - Nginx configured for 10GB file uploads
+# - Extended timeouts (1 hour) for large file processing
+# - Memory-optimized buffering for large uploads
+# - Gunicorn with extended worker timeouts
+# - Health checks for all services
+# - Persistent storage for data and logs
+# - Optional Redis for session storage
+# - Optional Adminer for database management
+#
+# Performance considerations:
+# - App container has 4GB memory limit for large file processing
+# - Nginx uses temporary file storage for large uploads
+# - Postgres configured with proper health checks
+# - All services configured for automatic restart
+#
+# Security features:
+# - Non-root users in containers
+# - Environment variables for sensitive data
+# - Network isolation between services
+# - Optional HTTPS support (configure SSL certificates)

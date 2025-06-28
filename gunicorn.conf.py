@@ -15,8 +15,8 @@ workers = multiprocessing.cpu_count() * 2 + 1
 worker_class = "sync"  # Best for CPU-intensive workloads like pandas processing
 worker_connections = 1000
 
-# Timeouts - Extended for file processing operations
-timeout = 300  # 5 minutes for large file uploads and processing
+# Timeouts - Extended for large file uploads and processing (10GB files)
+timeout = 3600  # 1 hour for very large file uploads and processing
 keepalive = 2
 
 # Worker lifecycle management

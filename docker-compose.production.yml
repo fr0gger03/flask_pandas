@@ -60,8 +60,8 @@ services:
       # Security settings
       - WTF_CSRF_ENABLED=true
       - WTF_CSRF_TIME_LIMIT=3600
-      # File upload limits
-      - MAX_CONTENT_LENGTH=104857600  # 100MB
+      # File upload limits - 10GB for large datasets
+      - MAX_CONTENT_LENGTH=10737418240  # 10GB
     volumes:
       # Persistent storage for uploaded files and logs
       - app_input_prod:/app/parser/input

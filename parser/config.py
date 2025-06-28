@@ -21,6 +21,10 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # File upload configuration for large files (10GB)
+    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 10737418240))  # 10GB default
+    # Increase timeout for large file processing
+    SEND_FILE_MAX_AGE_DEFAULT = 0  # Disable caching for uploads
 
 class ProductionConfig(Config):
     DEBUG = False
