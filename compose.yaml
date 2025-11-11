@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
       target: test
       tags:
-        - "thomastwyman557/parser"
+        - "fr0gger03/parser-frontend"
     ports:
       - 80:5001
     environment:
