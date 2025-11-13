@@ -9,6 +9,13 @@ __pycache__/
 # uv.lock
 .python-version
 
+# environment variables
+envs/*.env
+!envs/.env.template
+.env
+.env.*
+!.env.template
+
 # Coverage
 htmlcov/
 .coverage
