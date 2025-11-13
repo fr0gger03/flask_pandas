@@ -30,7 +30,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.Dockerfile.venvdhi
+      dockerfile: Dockerfile.venvdhi
     container_name: workload_parser_app_prod
     ports:
       - "8000:8000"  # Expose Gunicorn directly

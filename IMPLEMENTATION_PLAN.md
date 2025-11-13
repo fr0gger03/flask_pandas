@@ -5,7 +5,7 @@
 
 ## Overview
 
-This plan restructures the project to support multiple environments (local, production, DHI) with:
+This plan restructures the project to support multiple environments (local, production) with:
 - Centralized environment file management
 - 1Password secret management integration
 - Isolated test configuration
@@ -33,7 +33,7 @@ Create `envs/.env.template` with all variables documented and placeholder values
 
 ### 1.3 Create Environment-Specific Files
 
-Create three environment files:
+Create two environment files:
 
 **File: `envs/local.env`**
 - Development settings
@@ -47,15 +47,9 @@ Create three environment files:
 - Debug mode disabled
 - Production database URLs
 
-**File: `envs/dhi.env`**
-- DHI environment settings
-- Use 1Password references for secrets
-- DHI-specific configurations
-
 **Action Items:**
 - [ ] Create `envs/local.env` with development values
 - [ ] Create `envs/production.env` with 1Password references
-- [ ] Create `envs/dhi.env` with 1Password references
 
 ### 1.4 Integrate 1Password Secret References
 
@@ -143,15 +137,9 @@ Split environment-specific configs into separate files:
 - Production logging
 - No debug tools
 
-**File: `compose.dhi.yaml`**
-- DHI environment overrides
-- DHI-specific Dockerfile
-- DHI networking configuration
-
 **Action Items:**
 - [ ] Create `compose.override.yaml` from current `compose.yaml`
 - [ ] Create `compose.production.yaml` from current `docker-compose.production.yml`
-- [ ] Create `compose.dhi.yaml` from current `docker-compose.dhi.yaml`
 - [ ] Remove all redundant config (keep only differences from base)
 
 ### 2.3 Remove Hardcoded Secrets
@@ -409,13 +397,6 @@ Create items in 1Password (use your preferred vault):
   - POSTGRES_PASSWORD
   - DATABASE_URL
 
-**Item: `flask-pandas-dhi`**
-- Type: API Credential or Secure Note
-- Fields:
-  - SECRET_KEY
-  - POSTGRES_PASSWORD
-  - DATABASE_URL
-
 **Item: `flask-pandas-test` (optional, for CI/CD)**
 - Type: API Credential or Secure Note
 - Fields:
@@ -455,7 +436,7 @@ op item get "flask-pandas-production"
 
 ### 3.3 Update Environment Files with 1Password References
 
-Update `envs/production.env` and `envs/dhi.env`:
+Update `envs/production.env`:
 
 **Example `envs/production.env`:**
 ```bash
@@ -475,7 +456,6 @@ PYTHONDONTWRITEBYTECODE=1
 
 **Action Items:**
 - [ ] Replace secrets in `envs/production.env`
-- [ ] Replace secrets in `envs/dhi.env`
 - [ ] Keep `envs/local.env` with direct values (for convenience)
 - [ ] Test 1Password references resolve correctly
 
@@ -1096,35 +1076,7 @@ curl http://localhost:8000/health
 - [ ] Check logs for errors
 - [ ] Stop services
 
-### 6.3 Test DHI Environment
-
-```bash
-# Sign in to 1Password
-op signin
-
-# Verify 1Password items exist
-op item get "flask-pandas-dhi"
-
-# Test configuration
-./deploy.sh dhi config
-
-# Start services
-./deploy.sh dhi up -d
-
-# Verify services
-./deploy.sh dhi ps
-
-# Stop services
-./deploy.sh dhi down
-```
-
-**Action Items:**
-- [ ] Start DHI environment
-- [ ] Verify services start
-- [ ] Test DHI-specific configuration
-- [ ] Stop services
-
-### 6.4 Test Suite Validation
+### 6.3 Test Suite Validation
 
 ```bash
 # Test with clean environment
@@ -1154,7 +1106,7 @@ open htmlcov/index.html
 - [ ] Verify test isolation
 - [ ] Check coverage report
 
-### 6.5 Environment Switching Test
+### 6.4 Environment Switching Test
 
 ```bash
 # Switch to local
@@ -1174,14 +1126,14 @@ cat .env | grep FLASK_ENV
 - [ ] Verify symlinks are created correctly
 - [ ] Confirm environment values are different
 
-### 6.6 Secret Security Validation
+### 6.5 Secret Security Validation
 
 ```bash
 # Check git status
 git status
 
 # Verify .env files are ignored
-git check-ignore .env envs/local.env envs/production.env envs/dhi.env
+git check-ignore .env envs/local.env envs/production.env
 
 # Search for exposed secrets in git history
 git log --all --full-history --source --  '*env*'
@@ -1196,7 +1148,7 @@ op run --env-file=envs/production.env -- env | grep SECRET_KEY
 - [ ] Test 1Password reference resolution
 - [ ] Scan for accidentally committed secrets
 
-### 6.7 Makefile Testing (if created)
+### 6.6 Makefile Testing (if created)
 
 ```bash
 # Test each make target
@@ -1500,14 +1452,12 @@ docker system prune -a
 - [ ] Create .env.template
 - [ ] Create local.env
 - [ ] Create production.env with 1Password refs
-- [ ] Create dhi.env with 1Password refs
 - [ ] Update .gitignore
 
 ### Phase 2: Docker Compose
 - [ ] Refactor compose.yaml (base)
 - [ ] Create compose.override.yaml (local)
 - [ ] Create compose.production.yaml
-- [ ] Create compose.dhi.yaml
 - [ ] Remove hardcoded secrets
 - [ ] Archive old files
 
@@ -1543,7 +1493,6 @@ docker system prune -a
 ### Phase 6: Testing
 - [ ] Test local environment
 - [ ] Test production environment
-- [ ] Test DHI environment
 - [ ] Test suite validation
 - [ ] Test environment switching
 - [ ] Verify secret security
@@ -1559,7 +1508,7 @@ docker system prune -a
 
 ## Success Criteria
 
-✅ All environments (local, production, dhi) work correctly
+✅ All environments (local, production) work correctly
 ✅ 1Password integration successful
 ✅ All tests pass
 ✅ No secrets in git repository

@@ -10,11 +10,17 @@ services:
     ports:
       - 80:5001
     environment:
-      - FLASK_RUN_PORT=5001
-      - SECRET_KEY=your-secret-key
-      - DATABASE_URL=postgresql://inventorydbuser:password@db:5432/inventorydb
-      - UPLOAD_FOLDER=parser/input/
-      - MAX_CONTENT_LENGTH=10737418240  # 10GB for large file testing
+      # Flask configuration
+      - FLASK_ENV=${FLASK_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
+      # Security settings
+      - WTF_CSRF_ENABLED=${WTF_CSRF_ENABLED}
+      - WTF_CSRF_TIME_LIMIT=${WTF_CSRF_TIME_LIMIT}
+      # File upload limits - 10GB for large datasets
+      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}  # 10GB
+
     depends_on:
       db:
         condition: service_healthy
@@ -41,8 +47,9 @@ services:
       - ./parser/sql:/docker-entrypoint-initdb.d
       - db-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
     restart: always
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]

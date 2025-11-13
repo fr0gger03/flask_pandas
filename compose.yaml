@@ -8,13 +8,20 @@ services:
       tags:
         - "fr0gger03/parser-frontend"
     ports:
-      - 80:${VAR_FLASK_PORT}
+      - 80:${FLASK_PORT}
     environment:
-      - FLASK_RUN_PORT=${VAR_FLASK_PORT}
-      - SECRET_KEY=${VAR_SECRET_KEY}
-      - DATABASE_URL=${VAR_DATABASE_URL}
-      - MAX_CONTENT_LENGTH=${VAR_MAX_CONTENT_LENGTH}  # 10GB for large file testing
-      - UPLOAD_FOLDER=parser/input/
+      # Flask configuration
+      - FLASK_ENV=${FLASK_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
+      # Security settings
+      - WTF_CSRF_ENABLED=${WTF_CSRF_ENABLED}
+      - WTF_CSRF_TIME_LIMIT=${WTF_CSRF_TIME_LIMIT}
+      # File upload limits - 10GB for large datasets
+      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}  # 10GB
+
+
     depends_on:
       db:
         condition: service_healthy
@@ -36,13 +43,14 @@ services:
   db:
     image: postgres:17.4
     ports:
-      - 5432:${VAR_DATABASE_PORT}
+      - 5432:${DATABASE_PORT}
     volumes:
       - ./parser/sql:/docker-entrypoint-initdb.d
       - db-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${VAR_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${VAR_POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
     restart: always
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
@@ -54,7 +62,7 @@ services:
     image: adminer:latest
     restart: always
     ports:
-      - 8081:${VAR_ADMINER_PORT}
+      - 8081:${ADMINER_PORT}
 
 volumes:
   db-data:

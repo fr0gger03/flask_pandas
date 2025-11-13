@@ -14,10 +14,11 @@ services:
       - app_network_prod
     volumes:
       - ./parser/sql:/docker-entrypoint-initdb.d
-      - db-data:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
     restart: always
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
