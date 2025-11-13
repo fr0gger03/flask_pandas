@@ -3,8 +3,10 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile-venvdhi
-      target: production
+      dockerfile: Dockerfile
+      target: test
+      tags:
+        - "fr0gger03/parser-frontend"
     ports:
       - 80:5001
     environment:
@@ -12,10 +14,25 @@ services:
       - SECRET_KEY=your-secret-key
       - DATABASE_URL=postgresql://inventorydbuser:password@db:5432/inventorydb
       - UPLOAD_FOLDER=parser/input/
+      - MAX_CONTENT_LENGTH=10737418240  # 10GB for large file testing
     depends_on:
       db:
         condition: service_healthy
-
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./parser
+          target: /app
+        - action: sync
+          path: ./parser/static
+          target: /app/static
+        - action: sync
+          path: ./parser/templates
+          target: /app/templates
+        - action: rebuild
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
   db:
     image: postgres:17.4
     ports:

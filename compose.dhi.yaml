@@ -1,0 +1,88 @@
+# Production Docker Compose for Flask Workload Parser with Gunicorn
+# Simplified production setup with PostgreSQL and Gunicorn only
+# References:
+# - https://docs.docker.com/compose/production/
+# - https://flask.palletsprojects.com/en/stable/deploying/gunicorn/
+
+services:
+  # Postgres Service
+  db:
+    image: postgres:17.4
+    ports:
+      - 5432:${DATABASE_PORT}
+    networks:
+      - app_network_prod
+    volumes:
+      - ./parser/sql:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # Flask Application with Gunicorn
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.Dockerfile.venvdhi
+    container_name: workload_parser_app_prod
+    ports:
+      - "8000:8000"  # Expose Gunicorn directly
+    environment:
+      # Flask configuration
+      - FLASK_ENV=${FLASK_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
+      # Security settings
+      - WTF_CSRF_ENABLED=true
+      - WTF_CSRF_TIME_LIMIT=3600
+      # File upload limits - 10GB for large datasets
+      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}  # 10GB
+    volumes:
+      # Persistent storage for uploaded files and logs
+      - app_input_prod:/app/parser/input
+      - app_logs_prod:/app/logs
+    networks:
+      - app_network_prod
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits for production stability
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+
+volumes:
+  # Persistent data volumes
+  postgres_data_prod:
+    driver: local
+  app_input_prod:
+    driver: local
+  app_logs_prod:
+    driver: local
+
+networks:
+  app_network_prod:
+    driver: bridge
+

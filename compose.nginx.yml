@@ -2,22 +2,22 @@
 # This configuration supports up to 10GB file uploads with optimized performance
 
 services:
-  # PostgreSQL Database
+  # Postgres Service
   db:
     image: postgres:17.4
-    container_name: workload_parser_db_nginx
-    environment:
-      POSTGRES_DB: inventorydb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data_nginx:/var/lib/postgresql/data
-      - ./parser/sql:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:${DATABASE_PORT}
     networks:
-      - app_network_nginx
-    restart: unless-stopped
+      - app_network_prod
+    volumes:
+      - ./parser/sql:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
+      test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -114,20 +114,6 @@ services:
     profiles:
       - with-redis  # Optional service
 
-  # Adminer for Database Management (Development/Debug only)
-  adminer:
-    image: adminer:latest
-    container_name: workload_parser_adminer_nginx
-    ports:
-      - "8081:8080"
-    networks:
-      - app_network_nginx
-    restart: unless-stopped
-    profiles:
-      - debug  # Only start with --profile debug
-    environment:
-      ADMINER_DEFAULT_SERVER: db
-
 volumes:
   # Persistent data volumes
   postgres_data_nginx:
@@ -147,51 +133,3 @@ networks:
   app_network_nginx:
     driver: bridge
 
-# Production deployment instructions:
-#
-# 1. Create environment file (.env.production):
-#    POSTGRES_PASSWORD=your-secure-database-password
-#    DATABASE_URL=postgresql://inventorydbuser:your-secure-database-password@db:5432/inventorydb
-#    SECRET_KEY=your-super-secret-key-change-this-in-production
-#    UPLOAD_FOLDER=parser/input/
-#
-# 2. Deploy with nginx:
-#    docker compose -f docker-compose.nginx.yml --env-file .env.production up -d
-#
-# 3. Deploy with nginx and redis:
-#    docker compose -f docker-compose.nginx.yml --profile with-redis --env-file .env.production up -d
-#
-# 4. Deploy with debugging tools:
-#    docker compose -f docker-compose.nginx.yml --profile debug --env-file .env.production up -d
-#
-# 5. Monitor services:
-#    docker compose -f docker-compose.nginx.yml logs -f
-#    docker compose -f docker-compose.nginx.yml ps
-#
-# 6. Test large file upload capability:
-#    curl -X POST -F "file=@large_file.xlsx" http://localhost/upload
-#
-# 7. Scale app instances if needed:
-#    docker compose -f docker-compose.nginx.yml up -d --scale app=2
-#
-# Configuration highlights:
-# - Nginx configured for 10GB file uploads
-# - Extended timeouts (1 hour) for large file processing
-# - Memory-optimized buffering for large uploads
-# - Gunicorn with extended worker timeouts
-# - Health checks for all services
-# - Persistent storage for data and logs
-# - Optional Redis for session storage
-# - Optional Adminer for database management
-#
-# Performance considerations:
-# - App container has 4GB memory limit for large file processing
-# - Nginx uses temporary file storage for large uploads
-# - Postgres configured with proper health checks
-# - All services configured for automatic restart
-#
-# Security features:
-# - Non-root users in containers
-# - Environment variables for sensitive data
-# - Network isolation between services
-# - Optional HTTPS support (configure SSL certificates)

@@ -8,13 +8,13 @@ services:
       tags:
         - "fr0gger03/parser-frontend"
     ports:
-      - 80:5001
+      - 80:${VAR_FLASK_PORT}
     environment:
-      - FLASK_RUN_PORT=5001
-      - SECRET_KEY=your-secret-key
-      - DATABASE_URL=postgresql://inventorydbuser:password@db:5432/inventorydb
+      - FLASK_RUN_PORT=${VAR_FLASK_PORT}
+      - SECRET_KEY=${VAR_SECRET_KEY}
+      - DATABASE_URL=${VAR_DATABASE_URL}
+      - MAX_CONTENT_LENGTH=${VAR_MAX_CONTENT_LENGTH}  # 10GB for large file testing
       - UPLOAD_FOLDER=parser/input/
-      - MAX_CONTENT_LENGTH=10737418240  # 10GB for large file testing
     depends_on:
       db:
         condition: service_healthy
@@ -36,13 +36,13 @@ services:
   db:
     image: postgres:17.4
     ports:
-      - "5432:5432"
+      - 5432:${VAR_DATABASE_PORT}
     volumes:
       - ./parser/sql:/docker-entrypoint-initdb.d
       - db-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${VAR_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${VAR_POSTGRES_PASSWORD}
     restart: always
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
@@ -54,7 +54,7 @@ services:
     image: adminer:latest
     restart: always
     ports:
-      - 8081:8080
+      - 8081:${VAR_ADMINER_PORT}
 
 volumes:
   db-data:

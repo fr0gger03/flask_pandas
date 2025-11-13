@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 
+# Use DB_APP_PASSWORD for the application user, fallback to POSTGRES_PASSWORD if not set
+DB_PASSWORD="${DB_APP_PASSWORD:-${POSTGRES_PASSWORD}}"
+
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-	CREATE USER inventorydbuser WITH ENCRYPTED PASSWORD 'password';
+	CREATE USER inventorydbuser WITH ENCRYPTED PASSWORD '${DB_PASSWORD}';
 	CREATE DATABASE INVENTORYDB;
 	GRANT ALL PRIVILEGES ON DATABASE INVENTORYDB TO inventorydbuser;
 	\connect "inventorydb";
