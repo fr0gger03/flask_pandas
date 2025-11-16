@@ -1,67 +1,53 @@
+# Local Development Override
+# Automatically loaded by Docker Compose in addition to compose.yaml
+# Includes: dev build target, hot-reload, Adminer, local ports
 
 services:
-  frontend:
+  # Flask App - Development Configuration
+  app:
     build:
-      context: .
       dockerfile: Dockerfile
-      target: test
+      target: test  # Development build target with debug enabled
       tags:
         - "fr0gger03/parser-frontend"
     ports:
-      - 80:5001
-    environment:
-      # Flask configuration
-      - FLASK_ENV=${FLASK_ENV}
-      - DATABASE_URL=${DATABASE_URL}
-      - SECRET_KEY=${SECRET_KEY}
-      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
-      # Security settings
-      - WTF_CSRF_ENABLED=${WTF_CSRF_ENABLED}
-      - WTF_CSRF_TIME_LIMIT=${WTF_CSRF_TIME_LIMIT}
-      # File upload limits - 10GB for large datasets
-      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}  # 10GB
-
-    depends_on:
-      db:
-        condition: service_healthy
+      - "80:5001"  # Expose on port 80 for local development
+    volumes:
+      - ./parser:/app/parser  # Mount source for hot reload
     develop:
       watch:
+        # Hot reload on code changes
         - action: sync+restart
           path: ./parser
-          target: /app
+          target: /app/parser
+        # Sync static files without restart
         - action: sync
           path: ./parser/static
-          target: /app/static
+          target: /app/parser/static
         - action: sync
           path: ./parser/templates
-          target: /app/templates
+          target: /app/parser/templates
+        # Rebuild on dependency changes
         - action: rebuild
           path: ./pyproject.toml
         - action: rebuild
           path: ./uv.lock
-  db:
-    image: postgres:17.4
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./parser/sql:/docker-entrypoint-initdb.d
-      - db-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
-    restart: always
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
+  # Database - Development Configuration
+  db:
+    ports:
+      - "5432:5432"  # Expose database port for local access
+    volumes:
+      - db-data:/var/lib/postgresql/data  # Local named volume
+
+  # Adminer - Database Management UI (dev only)
   adminer:
     image: adminer:latest
     restart: always
     ports:
-      - 8081:8080
+      - "8081:8080"
+    depends_on:
+      - db
 
 volumes:
   db-data:

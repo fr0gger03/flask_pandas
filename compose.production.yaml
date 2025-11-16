@@ -1,60 +1,24 @@
-# Production Docker Compose for Flask Workload Parser with Gunicorn
-# Simplified production setup with PostgreSQL and Gunicorn only
+# Production Environment Overrides
+# Use with: docker compose -f compose.yaml -f compose.production.yaml up
+# Includes: Gunicorn, resource limits, production networking, persistent volumes
 # References:
 # - https://docs.docker.com/compose/production/
 # - https://flask.palletsprojects.com/en/stable/deploying/gunicorn/
 
 services:
-  # Postgres Service
-  db:
-    image: postgres:17.4
-    ports:
-      - 5432:${DATABASE_PORT}
-    networks:
-      - app_network_prod
-    volumes:
-      - ./parser/sql:/docker-entrypoint-initdb.d
-      - postgres_data_prod:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
-    restart: always
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-
-  # Flask Application with Gunicorn
+  # Flask App - Production Configuration
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile.production  # Production Dockerfile with Gunicorn
     container_name: workload_parser_app_prod
     ports:
-      - "8000:8000"  # Expose Gunicorn directly
-    environment:
-      # Flask configuration
-      - FLASK_ENV=${FLASK_ENV}
-      - DATABASE_URL=${DATABASE_URL}
-      - SECRET_KEY=${SECRET_KEY}
-      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
-      # Security settings
-      - WTF_CSRF_ENABLED=true
-      - WTF_CSRF_TIME_LIMIT=3600
-      # File upload limits - 10GB for large datasets
-      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}  # 10GB
+      - "8000:8000"  # Gunicorn port
     volumes:
       # Persistent storage for uploaded files and logs
       - app_input_prod:/app/parser/input
       - app_logs_prod:/app/logs
     networks:
       - app_network_prod
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -62,7 +26,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
     # Resource limits for production stability
     deploy:
       resources:
@@ -73,6 +36,14 @@ services:
           memory: 512M
           cpus: '0.5'
 
+  # Database - Production Configuration
+  db:
+    ports:
+      - "5432:5432"  # Expose for external connections if needed
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data  # Production persistent volume
+    networks:
+      - app_network_prod
 
 volumes:
   # Persistent data volumes

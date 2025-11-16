@@ -1,14 +1,12 @@
+# Base Docker Compose Configuration
+# Shared configuration for all environments
+# Override with compose.override.yaml (local) or compose.production.yaml (production)
 
 services:
-  frontend:
+  # Flask Application Service
+  app:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: test
-      tags:
-        - "fr0gger03/parser-frontend"
-    ports:
-      - 80:${FLASK_PORT}
     environment:
       # Flask configuration
       - FLASK_ENV=${FLASK_ENV}
@@ -18,52 +16,25 @@ services:
       # Security settings
       - WTF_CSRF_ENABLED=${WTF_CSRF_ENABLED}
       - WTF_CSRF_TIME_LIMIT=${WTF_CSRF_TIME_LIMIT}
-      # File upload limits - 10GB for large datasets
-      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}  # 10GB
-
-
+      # File upload limits
+      - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}
     depends_on:
       db:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./parser
-          target: /app
-        - action: sync
-          path: ./parser/static
-          target: /app/static
-        - action: sync
-          path: ./parser/templates
-          target: /app/templates
-        - action: rebuild
-          path: ./pyproject.toml
-        - action: rebuild
-          path: ./uv.lock
+
+  # PostgreSQL Database Service
   db:
     image: postgres:17.4
-    ports:
-      - 5432:${DATABASE_PORT}
     volumes:
       - ./parser/sql:/docker-entrypoint-initdb.d
-      - db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DB_APP_PASSWORD: ${DB_APP_PASSWORD}
     restart: always
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
+      test: ["CMD", "pg_isready", "-U", "inventorydbuser", "-d", "inventorydb"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  adminer:
-    image: adminer:latest
-    restart: always
-    ports:
-      - 8081:${ADMINER_PORT}
-
-volumes:
-  db-data:
 
