@@ -23,7 +23,7 @@ This project supports multiple environments: local, production, and DHI.
 
 2. Update `envs/local.env` with your local settings
 
-3. For production/DHI, configure 1Password items (see [DEPLOYMENT.md](DEPLOYMENT.md))
+3. For production/DHI, configure 1Password items (see [DEPLOYMENT.md](docs/DEPLOYMENT.md))
 
 ### 1Password Configuration
 
@@ -39,7 +39,7 @@ POSTGRES_PASSWORD=op://Private/flask-pandas-production/POSTGRES_PASSWORD
 DATABASE_URL=op://Private/flask-pandas-production/DATABASE_URL
 ```
 
-For complete setup instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For complete setup instructions, see [DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ### Switching Environments
 
@@ -100,7 +100,7 @@ make prod-down
 ./deploy.sh <env> exec app bash  # Shell into container
 ```
 
-For complete deployment instructions, rollback procedures, and troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For complete deployment instructions, rollback procedures, and troubleshooting, see [DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ---
 
@@ -127,5 +127,5 @@ make test-coverage
 
 Tests use isolated configuration from `envs/test.env`. Test database is managed by testcontainers.
 
-For complete testing documentation, fixtures, and troubleshooting, see [TESTING.md](TESTING.md).
+For complete testing documentation, fixtures, and troubleshooting, see [TESTING.md](docs/TESTING.md).
 
