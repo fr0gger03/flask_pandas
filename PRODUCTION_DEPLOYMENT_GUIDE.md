@@ -1,5 +1,7 @@
 # Production Deployment Guide for Flask Workload Parser
 
+> **⚠️ NOTE**: This guide contains legacy information. For the most up-to-date deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md). This document is maintained for reference on specific production configurations like Redis, Nginx, and Sentry.
+
 This guide documents all necessary changes to implement a production-ready deployment with Redis, Nginx, Gunicorn, and Sentry monitoring.
 
 ## Overview
@@ -33,23 +35,23 @@ prod = [
 ]
 ```
 
-### 2. Production Environment File (`.env.production`)
+### 2. Production Environment File (`envs/production.env`)
 
-Create a production environment configuration:
+Create a production environment configuration using 1Password references:
 
 ```bash
 # Production Environment Configuration
-# Copy this to .env and update with your actual values
+# Location: envs/production.env
 
 # Flask Configuration
 FLASK_ENV=production
 FLASK_DEBUG=False
-SECRET_KEY=your-super-secret-key-change-this-in-production
+SECRET_KEY=op://Private/flask-pandas-production/SECRET_KEY
 
 # Database Configuration
-# Use PostgreSQL for production
-POSTGRES_PASSWORD=secure-production-password
-DATABASE_URL=postgresql://inventorydbuser:secure-production-password@db:5432/inventorydb
+# Use PostgreSQL for production with 1Password references
+POSTGRES_PASSWORD=op://Private/flask-pandas-production/POSTGRES_PASSWORD
+DATABASE_URL=op://Private/flask-pandas-production/DATABASE_URL
 
 # Security
 WTF_CSRF_ENABLED=True

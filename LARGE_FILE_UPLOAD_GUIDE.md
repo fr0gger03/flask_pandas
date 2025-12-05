@@ -1,5 +1,7 @@
 # Large File Upload Support Guide (10GB+)
 
+> **⚠️ NOTE**: This guide contains legacy deployment commands. For current deployment procedures, see [DEPLOYMENT.md](DEPLOYMENT.md). The configuration details in this document are still relevant.
+
 This guide documents the implementation of 10GB file upload support for the Flask Workload Parser application. The changes enable handling of very large Excel files containing thousands of rows of workload data.
 
 ## Overview of Changes
@@ -138,29 +140,44 @@ class UploadFileForm(FlaskForm):
 
 ## Deployment Options
 
-### Option 1: Production with Direct Gunicorn
+### Option 1: Local Development with Large File Testing
 ```bash
-docker compose -f docker-compose.production.yml --env-file .env.production up -d
-```
-- Direct access to Gunicorn on port 8000
-- Good for simple deployments
-- No nginx overhead
+# Using new deployment script
+./deploy.sh local up
 
-### Option 2: Production with Nginx (Recommended)
-```bash
-docker compose -f docker-compose.nginx.yml --env-file .env.production up -d
-```
-- Nginx reverse proxy on port 80
-- Optimized for large file uploads
-- Better performance and security
-- SSL termination support
-
-### Option 3: Development with Large File Testing
-```bash
-docker compose -f compose.yaml up -d
+# Or using Makefile
+make dev
 ```
 - Development environment with 10GB support
 - Hot reload and debugging enabled
+- Uses `envs/local.env` configuration
+
+### Option 2: Production Deployment
+```bash
+# Sign in to 1Password
+op signin
+
+# Using new deployment script (recommended)
+./deploy.sh production up -d
+
+# Or using Makefile
+make prod-up
+```
+- Production environment with 1Password secret management
+- Uses `envs/production.env` with 1Password references
+- Optimized for large file uploads
+- See [DEPLOYMENT.md](DEPLOYMENT.md) for complete instructions
+
+### Option 3: DHI Environment
+```bash
+# Using deployment script
+./deploy.sh dhi up -d
+
+# Or using Makefile
+make dhi-up
+```
+- DHI-specific configuration
+- Uses `envs/dhi.env` with 1Password references
 
 ## Performance Considerations
 

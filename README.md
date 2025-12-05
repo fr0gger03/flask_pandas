@@ -4,55 +4,128 @@ This application grew out of a previous project - the <a href=https://github.com
 
 The entire application has been 'containerized' so I may experiment with pushing to the cloud in a standardized way, and leverage CI/CD.
 
-### Create Environment-Specific Files
+## Environment Setup
 
-- [ ] Copy current envs/`.env.template` as starting point
-- [ ] Document all environment variables with comments
-- [ ] Use placeholder values like `your-secret-here`
-- [ ] Include sections for: Flask, Database, Security, File Upload, Logging, Performance
+This project supports multiple environments: local, production, and DHI.
 
-Create two environment files:
+### Prerequisites
 
-**File: `envs/local.env`**
-- Development settings
-- Can include dev secrets (gitignored)
-- Use localhost/docker service names
-- Debug mode enabled
+1. Docker and Docker Compose
+2. 1Password CLI (for production/DHI)
+3. Python 3.11+ (for local development)
 
-**File: `envs/production.env`**
-- Production settings
-- Use a secret manager for secrets
-- Debug mode disabled
-- Production database URLs
+### Initial Setup
 
-### Building and running your application - development
+1. Copy environment template:
+   ```bash
+   cp envs/.env.template envs/local.env
+   ```
 
-When you're ready, start your application by running:
-`docker compose --env-file envs/local.env up --build`
+2. Update `envs/local.env` with your local settings
 
-This will use env/local.env to set all required environmental variables for local development.  
+3. For production/DHI, configure 1Password items (see [DEPLOYMENT.md](DEPLOYMENT.md))
 
-**Note:** the `compose.override.yaml` file will automatically be used to update the default `compose.yaml` file.
+### 1Password Configuration
 
-If you would optionally like to leverage compose watch for interactive use / troubleshooting of the application while you are working on it, then use:
-`docker compose --env-file envs/local.env watch`
+Create items in 1Password for production and DHI environments:
 
-(watch may not be used with `up` or `--build`)
+- Item name: `flask-pandas-production`
+- Fields: `SECRET_KEY`, `POSTGRES_PASSWORD`, `DATABASE_URL`
 
-Your application will be available at http://localhost.
+Update `envs/production.env` and `envs/dhi.env` with references:
+```bash
+SECRET_KEY=op://Private/flask-pandas-production/SECRET_KEY
+POSTGRES_PASSWORD=op://Private/flask-pandas-production/POSTGRES_PASSWORD
+DATABASE_URL=op://Private/flask-pandas-production/DATABASE_URL
+```
 
-### Building and running your application - production
+For complete setup instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-When you're ready, start your application by running:
-`docker compose --env-file envs/production.env up --build`
+### Switching Environments
 
-This will use env/production.env to set all required environmental variables for your production configuration.  
+```bash
+# Switch to local
+./switch-env.sh local
 
-Your application will be available at http://localhost.
+# Switch to production
+./switch-env.sh production
 
-### Tear-down
-You can use one of the following commands to tear down your containers:
-`docker compose --env-file envs/local.env down -v`
-or
-`docker compose --env-file envs/production.env down -v`
+# Switch to DHI
+./switch-env.sh dhi
+```
+
+---
+
+## Deployment
+
+### Local Development
+
+```bash
+# Start services
+./deploy.sh local up
+
+# Or use Makefile
+make dev
+
+# Stop services
+make dev-down
+```
+
+### Production
+
+```bash
+# Sign in to 1Password
+op signin
+
+# Start services
+./deploy.sh production up -d
+
+# Or use Makefile
+make prod-up
+
+# View logs
+make prod-logs
+
+# Stop services
+make prod-down
+```
+
+### Available Commands
+
+```bash
+./deploy.sh <env> up        # Start services
+./deploy.sh <env> down      # Stop services
+./deploy.sh <env> ps        # List services
+./deploy.sh <env> logs -f   # Follow logs
+./deploy.sh <env> exec app bash  # Shell into container
+```
+
+For complete deployment instructions, rollback procedures, and troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+---
+
+## Testing
+
+### Run Tests
+
+```bash
+# Run all tests
+./scripts/test.sh
+
+# Or use Makefile
+make test
+
+# Run specific markers
+./scripts/test.sh -m unit
+./scripts/test.sh -m integration
+
+# Run with coverage
+make test-coverage
+```
+
+### Test Environment
+
+Tests use isolated configuration from `envs/test.env`. Test database is managed by testcontainers.
+
+For complete testing documentation, fixtures, and troubleshooting, see [TESTING.md](TESTING.md).
 
