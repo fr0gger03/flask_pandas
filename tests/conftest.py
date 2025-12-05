@@ -1,12 +1,18 @@
 """
 Pytest configuration and shared fixtures for the flask_pandas project tests.
 """
-import pytest, uuid
+import pytest, uuid, os
+from dotenv import load_dotenv
 from pathlib import Path
 from testcontainers.postgres import PostgresContainer
 from flask import url_for
 from parser.app import create_app, db, bcrypt
 from parser.models import User, Project, Workload
+
+# Load test environment at module level
+test_env_path = Path(__file__).parent.parent / 'envs' / 'test.env'
+if test_env_path.exists():
+    load_dotenv(test_env_path, override=False)
 
 
 @pytest.fixture(scope='session', autouse=True)

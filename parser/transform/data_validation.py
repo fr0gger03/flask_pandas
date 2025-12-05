@@ -47,6 +47,10 @@ def filetype_validation(input_path, fn):
                 print(f"Found sheets: {vmsheets[:5]}..." if len(vmsheets) > 5 else f"Found sheets: {vmsheets}")
                 file_type = "invalid"
                 
+    except FileNotFoundError:
+        # Re-raise FileNotFoundError to be explicit about missing files
+        print(f"File not found: {os.path.join(input_path, fn)}")
+        raise
     except Exception as e:
         print(f"Error reading Excel file {fn}: {e}")
         file_type = "invalid"
